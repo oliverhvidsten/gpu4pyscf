@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "../fixed_point.cuh"
 #include "gint.h"
 
 template <int NROOTS>
@@ -179,7 +180,7 @@ static void GINTfill_int3c1e_charge_contracted_kernel_expanded(double* output, c
 #pragma unroll
         for (int i = 0; i < n_density_elements_i; i++) {
             const double eri_grid_sum = output_cache[i + j * n_density_elements_i];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j), eri_grid_sum);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j), eri_grid_sum);
         }
     }
 }
@@ -262,7 +263,7 @@ static void GINTfill_int3c1e_charge_contracted_kernel_general(double* output, co
     for (int j = 0; j < (j_l + 1) * (j_l + 2) / 2; j++) {
         for (int i = 0; i < (i_l + 1) * (i_l + 2) / 2; i++) {
             const double eri_grid_sum = output_cache[i + j * ((i_l + 1) * (i_l + 2) / 2)];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j), eri_grid_sum);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j), eri_grid_sum);
         }
     }
 }
@@ -333,5 +334,5 @@ static void GINTfill_int3c1e_density_contracted_kernel_general(double* output, c
         }
         eri_with_density_pair_sum += eri_with_density_per_pair;
     }
-    atomicAdd(output + task_grid, eri_with_density_pair_sum);
+    fp_atomic_add(output + task_grid, eri_with_density_pair_sum);
 }

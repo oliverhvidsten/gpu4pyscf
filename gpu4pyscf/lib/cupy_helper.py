@@ -70,6 +70,10 @@ def print_mem_info():
     return msg
 
 def get_avail_mem(exclude_memory_pool=False):
+    from gpu4pyscf.lib import fixed_point
+    if fixed_point.DETERMINISTIC_BLOCKING:
+        # memory-independent block sizes (see lib/fixed_point.py)
+        return fixed_point.deterministic_avail_mem()
     if exclude_memory_pool:
         return cupy.cuda.runtime.memGetInfo()[0]
 
@@ -290,6 +294,18 @@ def fill_symmetric(a, pair_addresses, nao, p0=0, p1=None, out=None, stream=None)
 
     pair_addresses = cupy.asarray(pair_addresses, dtype=np.int32)
     out_stride = out.strides[-2] // out.itemsize
+    # pair_addresses can contain an AO pair in both orders (ij and ji) whose values
+    # differ at rounding level; in deterministic mode only the first entry writes
+    from gpu4pyscf.lib import fixed_point
+    mask_ptr = lib.c_null_ptr()
+    if fixed_point.DETERMINISTIC_BLOCKING or fixed_point.ENABLED:
+        i, j = cupy.divmod(pair_addresses, nao)
+        canon = cupy.minimum(i, j) * nao + cupy.maximum(i, j)
+        order = cupy.argsort(canon, kind='stable')
+        first = cupy.ones(len(canon), dtype=bool)
+        first[order[1:]] = canon[order[1:]] != canon[order[:-1]]
+        write_mask = first.astype(np.int8)
+        mask_ptr = ctypes.cast(write_mask.data.ptr, ctypes.c_void_p)
     if a.strides[-1] == 8: # a is in row major
         a_stride = a.strides[-2] // a.itemsize
         err = libcupy_helper.decompress_and_fill(
@@ -301,7 +317,7 @@ def fill_symmetric(a, pair_addresses, nao, p0=0, p1=None, out=None, stream=None)
             ctypes.c_int(len(pair_addresses)),
             ctypes.c_int(nao),
             ctypes.c_int(a_stride),
-            ctypes.c_int(p0), ctypes.c_int(p1))
+            ctypes.c_int(p0), ctypes.c_int(p1), mask_ptr)
         if err != 0:
             raise RuntimeError('decompress_and_fill failed')
     else: # a is in column major
@@ -313,7 +329,7 @@ def fill_symmetric(a, pair_addresses, nao, p0=0, p1=None, out=None, stream=None)
             ctypes.c_int(len(pair_addresses)),
             ctypes.c_int(nao),
             ctypes.c_int(p0), ctypes.c_int(p1),
-            ctypes.c_int(1), ctypes.c_int(0))
+            ctypes.c_int(1), ctypes.c_int(0), mask_ptr)
         if err != 0:
             raise RuntimeError('decompress_and_transpose failed')
     return out

@@ -528,7 +528,7 @@ void unrolled_contract_int3c2e(RysIntEnvVars& envs, JKMatrix& jk,
                 val += __shfl_down_sync(0xff, val, offset);
             }
             if (thread_id == 0) {
-                atomicAdd(jk.vj+k0+k, val);
+                fp_atomic_add(jk.vj+k0+k, val);
             }
             __syncthreads();
         }
@@ -724,7 +724,7 @@ void unroll_contract_auxvec(RysIntEnvVars& envs, JKMatrix& jk,
             for (int n = 0, i = Rt_id; n < IJ_SIZE; ++n, i += Rt_stride) {
                 if (i >= nf3ij) break;
                 int ij_loc0 = pair_ij_loc[pair_ij];
-                atomicAdd(jk.vj+ij_loc0+i, vj_xyz[n]);
+                fp_atomic_add(jk.vj+ij_loc0+i, vj_xyz[n]);
             }
         }
     }

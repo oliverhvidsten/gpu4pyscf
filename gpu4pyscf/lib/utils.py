@@ -31,8 +31,11 @@ __all__ = ['load_library', 'format_sys_info', 'to_cpu']
 @functools.lru_cache
 def load_library(libname, path=None):
     if path is None:
+        from gpu4pyscf.lib import fixed_point
         loaderpath = os.path.dirname(__file__)
-        return numpy.ctypeslib.load_library(libname, loaderpath)
+        lib = numpy.ctypeslib.load_library(fixed_point.library_name(libname), loaderpath)
+        fixed_point.register(libname, lib)
+        return lib
     elif os.path.isabs(path):
         return numpy.ctypeslib.load_library(libname, path)
     else:

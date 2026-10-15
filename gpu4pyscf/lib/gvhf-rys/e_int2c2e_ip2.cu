@@ -268,27 +268,27 @@ void e_int2c2e_ip2_kernel(double *out, double *dm, PBCIntEnvVars envs,
             int ia = bas[ish*BAS_SLOTS+ATOM_OF];
             int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
             int natm = envs.natm;
-            atomicAdd(out + (ia*natm+ja)*9 + 0, v_ixjx);
-            atomicAdd(out + (ia*natm+ja)*9 + 1, v_ixjy);
-            atomicAdd(out + (ia*natm+ja)*9 + 2, v_ixjz);
-            atomicAdd(out + (ia*natm+ja)*9 + 3, v_iyjx);
-            atomicAdd(out + (ia*natm+ja)*9 + 4, v_iyjy);
-            atomicAdd(out + (ia*natm+ja)*9 + 5, v_iyjz);
-            atomicAdd(out + (ia*natm+ja)*9 + 6, v_izjx);
-            atomicAdd(out + (ia*natm+ja)*9 + 7, v_izjy);
-            atomicAdd(out + (ia*natm+ja)*9 + 8, v_izjz);
-            atomicAdd(out + (ia*natm+ia)*9 + 0, v_ixx * .5);
-            atomicAdd(out + (ia*natm+ia)*9 + 3, v_ixy);
-            atomicAdd(out + (ia*natm+ia)*9 + 4, v_iyy * .5);
-            atomicAdd(out + (ia*natm+ia)*9 + 6, v_ixz);
-            atomicAdd(out + (ia*natm+ia)*9 + 7, v_iyz);
-            atomicAdd(out + (ia*natm+ia)*9 + 8, v_izz * .5);
-            atomicAdd(out + (ja*natm+ja)*9 + 0, v_jxx * .5);
-            atomicAdd(out + (ja*natm+ja)*9 + 3, v_jxy);
-            atomicAdd(out + (ja*natm+ja)*9 + 4, v_jyy * .5);
-            atomicAdd(out + (ja*natm+ja)*9 + 6, v_jxz);
-            atomicAdd(out + (ja*natm+ja)*9 + 7, v_jyz);
-            atomicAdd(out + (ja*natm+ja)*9 + 8, v_jzz * .5);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 0, v_ixjx);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 1, v_ixjy);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 2, v_ixjz);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 3, v_iyjx);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 4, v_iyjy);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 5, v_iyjz);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 6, v_izjx);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 7, v_izjy);
+            fp_atomic_add(out + (ia*natm+ja)*9 + 8, v_izjz);
+            fp_atomic_add(out + (ia*natm+ia)*9 + 0, v_ixx * .5);
+            fp_atomic_add(out + (ia*natm+ia)*9 + 3, v_ixy);
+            fp_atomic_add(out + (ia*natm+ia)*9 + 4, v_iyy * .5);
+            fp_atomic_add(out + (ia*natm+ia)*9 + 6, v_ixz);
+            fp_atomic_add(out + (ia*natm+ia)*9 + 7, v_iyz);
+            fp_atomic_add(out + (ia*natm+ia)*9 + 8, v_izz * .5);
+            fp_atomic_add(out + (ja*natm+ja)*9 + 0, v_jxx * .5);
+            fp_atomic_add(out + (ja*natm+ja)*9 + 3, v_jxy);
+            fp_atomic_add(out + (ja*natm+ja)*9 + 4, v_jyy * .5);
+            fp_atomic_add(out + (ja*natm+ja)*9 + 6, v_jxz);
+            fp_atomic_add(out + (ja*natm+ja)*9 + 7, v_jyz);
+            fp_atomic_add(out + (ja*natm+ja)*9 + 8, v_jzz * .5);
         }
     }
 }

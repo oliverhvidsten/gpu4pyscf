@@ -96,7 +96,7 @@ void rys_j_kernel(RysIntEnvVars envs, JKMatrix jk, BoundsInfo bounds,
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);
@@ -485,11 +485,11 @@ while (1) {
             continue;
         }
         for (int n = gout_id; n < nf3ij; n+=gout_stride) {
-            atomicAdd(vj+ij_pair0+n, vj_ij[n*nsq_per_block]);
+            fp_atomic_add(vj+ij_pair0+n, vj_ij[n*nsq_per_block]);
         }
         int kl_pair0 = pair_loc[bas_kl];
         for (int n = gout_id; n < nf3kl; n+=gout_stride) {
-            atomicAdd(vj+kl_pair0+n, vj_kl[n*nsq_per_block]);
+            fp_atomic_add(vj+kl_pair0+n, vj_kl[n*nsq_per_block]);
         }
     }
 }
@@ -552,7 +552,7 @@ void rys_j_with_gout_kernel(RysIntEnvVars envs, JKMatrix jk, BoundsInfo bounds,
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);
@@ -804,14 +804,14 @@ while (1) {
                 for (int i = 0; i < nf3ij; ++i) {
                     vj_kl += dm[ij_pair0+i] * gout[(i+k*nf3ij)*nsq_per_block];
                 }
-                atomicAdd(vj+kl_pair0+k, vj_kl);
+                fp_atomic_add(vj+kl_pair0+k, vj_kl);
             }
             for (int i = gout_id; i < nf3ij; i += gout_stride) {
                 double vj_ij = 0.;
                 for (int k = 0; k < nf3kl; ++k) {
                     vj_ij += dm[kl_pair0+k] * gout[(i+k*nf3ij)*nsq_per_block];
                 }
-                atomicAdd(vj+ij_pair0+i, vj_ij);
+                fp_atomic_add(vj+ij_pair0+i, vj_ij);
             }
             vj += nao_pairs;
             dm += nao_pairs;

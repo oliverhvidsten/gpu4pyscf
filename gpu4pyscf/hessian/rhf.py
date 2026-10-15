@@ -16,6 +16,7 @@
 Non-relativistic RHF analytical Hessian
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import math
 import ctypes
 import numpy
@@ -245,6 +246,7 @@ def _hess_nuc_without_ecp(mol, dm0):
         ctypes.c_int(natm))
     if err != 0:
         raise RuntimeError('ejk_int3c2e_ip2 failed')
+    from_fixed(de)
     de = de + de.transpose(1,0,3,2)
     de *= 2
     return de
@@ -389,6 +391,7 @@ def _partial_ejk_ip2(mol, dm, vhfopt=None, j_factor=1., k_factor=1.,
                 msg = f'processing {llll} on Device {device_id} tasks ~= {ntasks}'
                 t1 = timing_collection.collect(llll, t1, msg)
 
+        from_fixed(ejk)
         ejk = ejk + ejk.transpose(1,0,3,2)
         return ejk, kern_counts, timing_collection
 
@@ -588,6 +591,7 @@ def _get_jk_ip1(mol, dm, with_j=True, with_k=True, atoms_slice=None,
                 ntasks = npairs_ij * npairs_kl
                 msg = f'processing {llll} on Device {device_id} tasks ~= {ntasks}'
                 t1 = timing_collection.collect(llll, t1, msg)
+        from_fixed(vj); from_fixed(vk)
         return vj, vk, kern_counts, timing_collection
 
     results = multi_gpu.run(proc, non_blocking=True)

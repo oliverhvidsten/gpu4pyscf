@@ -16,6 +16,7 @@
 Compute J/K matrices
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import warnings
 import math
@@ -600,6 +601,7 @@ class _VHFOpt:
                 if num_devices > 1:
                     stream.synchronize()
 
+            from_fixed(vj); from_fixed(vk)
             if hermi == 1:
                 vj *= 2.
                 vk = transpose_sum(vk)
@@ -760,6 +762,7 @@ class _VHFOpt:
                     t1 = timing_collection.collect(llll, t1, msg)
                 if num_devices > 1:
                     stream.synchronize()
+            from_fixed(vj_xyz)
             return vj_xyz, kern_counts, timing_collection
 
         results = multi_gpu.run(proc, args=(dm_xyz, dm_cond), non_blocking=True)
@@ -896,6 +899,7 @@ class _VHFOpt:
                 if num_devices > 1:
                     stream.synchronize()
 
+            from_fixed(vk)
             if hermi == 1:
                 vk = transpose_sum(vk)
             elif hermi == 2:

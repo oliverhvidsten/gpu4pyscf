@@ -105,7 +105,7 @@ void _zfill_triu(double *eri, size_t nao, int counts, int hermi)
 __global__ static
 void decompress_kernel(double *out, size_t out_stride,
                        double *cderi, int *pair_idx, int npairs, int nao,
-                       size_t naux, int aux0, int aux1)
+                       size_t naux, int aux0, int aux1, const int8_t *write_mask)
 {
     int thread_id = threadIdx.x;
     int threads = blockDim.x;
@@ -114,6 +114,9 @@ void decompress_kernel(double *out, size_t out_stride,
     int pair0 = batch_id * RBLKSIZE;
     int pair1 = min(pair0 + RBLKSIZE, npairs);
     for (int pair_id = pair0; pair_id < pair1; ++pair_id) {
+        // pair_idx may list an AO pair twice (ij and ji); with a mask only one
+        // entry writes, which makes the fill independent of block scheduling
+        if (write_mask != NULL && !write_mask[pair_id]) continue;
         int ij = pair_idx[pair_id];
         int i = ij / nao;
         int j = ij - nao * i;
@@ -133,7 +136,7 @@ void decompress_kernel(double *out, size_t out_stride,
 __global__ static
 void d_t_kernel(double *out, size_t out_stride,
                 double *cderi, int *pair_idx, int npairs, int nao,
-                int aux0, int aux1, int fill_triu)
+                int aux0, int aux1, int fill_triu, const int8_t *write_mask)
 {
     int bx = blockIdx.x;
     int by = blockIdx.y;
@@ -159,6 +162,7 @@ void d_t_kernel(double *out, size_t out_stride,
     int aux_id = thread_id % RBLKSIZE;
     if (aux_start+aux_id < daux) {
         for (int k = pair_id; k < min(CBLKSIZE, npairs-pair_start); k += stride) {
+            if (write_mask != NULL && !write_mask[pair_start+k]) continue;
             int pair_ij = pair_idx[pair_start+k];
             int i = pair_ij / nao;
             int j = pair_ij - nao * i;
@@ -286,11 +290,11 @@ int unpack_tril(cudaStream_t stream, double *eri_tril, double *eri,
 
 int decompress_and_fill(cudaStream_t stream, double *out, int out_stride,
                         double *cderi, int *pair_idx, int npairs, int nao,
-                        int naux, int aux0, int aux1)
+                        int naux, int aux0, int aux1, const int8_t *write_mask)
 {
     dim3 blocks((npairs+RBLKSIZE-1)/RBLKSIZE);
     decompress_kernel<<<blocks, 512, 0, stream>>>(
-            out, out_stride, cderi, pair_idx, npairs, nao, naux, aux0, aux1);
+            out, out_stride, cderi, pair_idx, npairs, nao, naux, aux0, aux1, write_mask);
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
         fprintf(stderr, "decompress_and_fill error %s\n", cudaGetErrorString(err));
@@ -301,7 +305,7 @@ int decompress_and_fill(cudaStream_t stream, double *out, int out_stride,
 
 int decompress_and_transpose(cudaStream_t stream, double *out, int out_stride,
                              double *cderi, int *pair_idx, int npairs, int nao,
-                             int aux0, int aux1, int fill_triu, int on_host)
+                             int aux0, int aux1, int fill_triu, int on_host, const int8_t *write_mask)
 {
     double *eri_gpu = cderi;
     if (on_host) {
@@ -314,7 +318,7 @@ int decompress_and_transpose(cudaStream_t stream, double *out, int out_stride,
     dim3 threads(CBLKSIZE * STRIDE);
     dim3 blocks((npairs+CBLKSIZE-1)/CBLKSIZE, (aux1-aux0+RBLKSIZE-1)/RBLKSIZE);
     d_t_kernel<<<blocks, threads, 0, stream>>>(
-            out, out_stride, eri_gpu, pair_idx, npairs, nao, aux0, aux1, fill_triu);
+            out, out_stride, eri_gpu, pair_idx, npairs, nao, aux0, aux1, fill_triu, write_mask);
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
         fprintf(stderr, "decompress_and_transpose error %s\n", cudaGetErrorString(err));

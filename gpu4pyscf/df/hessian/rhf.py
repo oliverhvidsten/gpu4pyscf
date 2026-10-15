@@ -21,6 +21,7 @@ Ref:
     Kossmann, Ute Becker, Edward Valeev, Frank Neese. Mol. Phys. 113, 1961 (2015)
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import numpy as np
 import cupy as cp
@@ -249,6 +250,7 @@ def _jk_energy_per_atom(int3c2e_opt, dm, j_factor=1, k_factor=1,
                 raise RuntimeError('ejk_int3c2e_ip2 failed')
             if num_devices > 1:
                 stream.synchronize()
+        from_fixed(ejk)
         return ejk
 
     aux_batch_iter = iter(range(auxmol.nbas))
@@ -614,6 +616,7 @@ def _j_energy_per_atom(int3c2e_opt, dm, verbose=None):
             ctypes.c_int(naux))
         if err != 0:
             raise RuntimeError('ejk_int3c2e_ip2 failed')
+        from_fixed(ej)
         return ej
     ej = proc()
     ej = ej + ej.transpose(1,0,3,2)
@@ -1229,6 +1232,7 @@ def _int2c2e_ip2_per_atom(mol, dm, omega=None, lr_factor=None, sr_factor=None):
         ctypes.cast(gout_stride.data.ptr, ctypes.c_void_p))
     if err != 0:
         raise RuntimeError('e_int2c2e_ip2 failed')
+    from_fixed(ejk)
     ejk = ejk + ejk.transpose(1,0,3,2)
     # *2 for i>=j, *.5 from Coulomb operator
     ejk *= 2 * .5

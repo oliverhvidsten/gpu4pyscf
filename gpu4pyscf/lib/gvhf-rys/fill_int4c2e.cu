@@ -149,7 +149,7 @@ void int4c2e_kernel(double *out, RysIntEnvVars envs, BoundsInfo bounds,
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);

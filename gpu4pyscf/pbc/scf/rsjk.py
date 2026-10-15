@@ -16,6 +16,7 @@
 Compute K Matrices with Periodic Boundary Conditions
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import math
 import numpy as np
@@ -390,6 +391,7 @@ class PBCJKMatrixOpt:
                 if num_devices > 1:
                     stream.synchronize()
 
+            from_fixed(vk)
             if kpts_band is not None:
                 raise NotImplementedError
 
@@ -758,6 +760,7 @@ class PBCJKMatrixOpt:
                 if num_devices > 1:
                     stream.synchronize()
 
+            from_fixed(vj)
             if kpts_band is not None:
                 raise NotImplementedError
             return vj, kern_counts, timing_collection

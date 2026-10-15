@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import time
 import ctypes
 import math
@@ -166,6 +167,7 @@ def _jk_energy_per_atom(vhfopt, dm, j_factor=1., k_factor=1.,
                 ntasks = npairs_ij * npairs_kl
                 msg = f'processing {llll} on Device {device_id} tasks ~= {ntasks}'
                 t1 = timing_collection.collect(llll, t1, msg)
+        from_fixed(ejk)
         return ejk, kern_counts, timing_collection
 
     results = multi_gpu.run(proc, non_blocking=True)
@@ -299,6 +301,7 @@ def _grad_nuc_without_ecp(mol, dm0):
         ctypes.c_int(mol.natm), ctypes.c_int(mol.natm))
     if err != 0:
         raise RuntimeError('int3c2e_ejk_ip1 failed')
+    from_fixed(de); from_fixed(de_aux)
     de += de_aux
     de *= 2
     de = de.get()

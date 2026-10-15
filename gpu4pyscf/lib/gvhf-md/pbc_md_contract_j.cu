@@ -305,7 +305,7 @@ void pbc_md_j_kernel(RysIntEnvVars envs, JKMatrix jmat, MDBoundsInfo bounds,
                 }
                 __syncthreads();
                 if (ty == 0 && i < nf3ij && pair_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+i, vj_cache[0]);
+                    fp_atomic_add(vj+ij_loc0+i, vj_cache[0]);
                 }
             }
         }

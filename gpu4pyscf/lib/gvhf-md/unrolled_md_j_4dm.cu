@@ -261,7 +261,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -281,8 +281,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -304,7 +304,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -318,7 +318,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*336+kl*336]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*336+kl*336]);
             }
         }
     }
@@ -629,7 +629,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -649,8 +649,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -672,7 +672,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -686,7 +686,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*336+kl*336]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*336+kl*336]);
             }
         }
     }
@@ -1397,7 +1397,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -1417,8 +1417,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -1440,7 +1440,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -1454,7 +1454,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*384+kl*96]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*384+kl*96]);
             }
         }
     }
@@ -1924,7 +1924,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -1944,8 +1944,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -1967,7 +1967,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -1981,7 +1981,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 8) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(8, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*256+kl*256]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*256+kl*256]);
             }
         }
     }
@@ -2947,7 +2947,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -2967,8 +2967,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -2990,7 +2990,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -3004,7 +3004,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*640+kl*160]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*640+kl*160]);
             }
         }
     }
@@ -5120,7 +5120,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -5140,8 +5140,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -5163,7 +5163,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -5177,7 +5177,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*640+kl*64]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*640+kl*64]);
             }
         }
     }
@@ -5764,7 +5764,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -5784,8 +5784,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -5807,7 +5807,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -5821,7 +5821,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*336+kl*336]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*336+kl*336]);
             }
         }
     }
@@ -7653,7 +7653,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else if (remaining_n_dm == 2) {
@@ -7673,8 +7673,8 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+n, vj_cache [thread_id]);
-                    atomicAdd(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
+                    fp_atomic_add(vj        +ij_loc0+n, vj_cache [thread_id]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+n, vj_cache1[thread_id]);
                 }
             }
         } else {
@@ -7696,7 +7696,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -7710,7 +7710,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 4) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(4, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*384+kl*96]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*384+kl*96]);
             }
         }
     }
@@ -8253,7 +8253,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else {
@@ -8275,7 +8275,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(2, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -8289,7 +8289,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(2, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*384+kl*384]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*384+kl*384]);
             }
         }
     }
@@ -9887,7 +9887,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else {
@@ -9909,7 +9909,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(2, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -9923,7 +9923,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(2, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*576+kl*144]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*576+kl*144]);
             }
         }
     }
@@ -10948,7 +10948,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
                 }
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                    fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
                 }
             }
         } else {
@@ -10970,7 +10970,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
                 __syncthreads();
                 if (ty == 0 && task_ij < npairs_ij) {
                     for (int m = 0; m < min(2, remaining_n_dm); ++m) {
-                        atomicAdd(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
+                        fp_atomic_add(vj+m*dm_size +ij_loc0+n, vj_cache[thread_id+256*m]);
                     }
                 }
             }
@@ -10984,7 +10984,7 @@ for (int dm_offset = 0; dm_offset < jk.n_dm; dm_offset += 2) {
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
             for (int m = 0; m < min(2, remaining_n_dm); ++m) {
-                atomicAdd(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*192+kl*192]);
+                fp_atomic_add(vj+m*dm_size+kl_loc0+kl, vj_kl_cache[sq_kl+m*192+kl*192]);
             }
         }
     }

@@ -1,6 +1,6 @@
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")# -maxrregcount=128")
 
-add_library(pbc SHARED
+set(PBC_SOURCES
   pbc_driver.cu
   ft_ao.cu ft_ao_ip1.cu contract_ft_ao.cu
   fill_int3c2e.cu contract_int3c2e.cu ejk_int3c2e_ip1.cu
@@ -16,10 +16,21 @@ add_library(pbc SHARED
   sorting.c write_cderi.c int3c2e_recontract.c
   screen.cu
   fill_triu.cu
+  ${CMAKE_CURRENT_SOURCE_DIR}/../fixed_point.cu
 )
+add_library(pbc SHARED ${PBC_SOURCES})
 
 set_target_properties(pbc PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}
   CUDA_SEPARABLE_COMPILATION ON)
 
 target_link_libraries(pbc OpenMP::OpenMP_C)
+
+if(BUILD_FIXED_POINT)
+  add_library(pbc_fp SHARED ${PBC_SOURCES})
+  set_target_properties(pbc_fp PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}
+    CUDA_SEPARABLE_COMPILATION ON)
+  target_compile_definitions(pbc_fp PRIVATE FIXED_POINT_ACCUM=1 FIXED_POINT_SHIFT=${FIXED_POINT_SHIFT})
+  target_link_libraries(pbc_fp OpenMP::OpenMP_C)
+endif()

@@ -16,6 +16,7 @@
 Periodic 2-center 2-electron short-range Coulomb integral helper functions
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import numpy as np
 import cupy as cp
@@ -341,4 +342,5 @@ class Int2c2eOpt:
             ctypes.cast(gout_stride.data.ptr, ctypes.c_void_p))
         if err != 0:
             raise RuntimeError('int2c2e_deriv failed')
+        from_fixed(grad_sigma)
         return grad_sigma

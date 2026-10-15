@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import cupy as cp
 import numpy as np
@@ -375,6 +376,8 @@ def get_int3c1e_charge_contracted(mol, grids, charge_exponents, charges, intopt)
         if err != 0:
             raise RuntimeError('GINTfill_int3c1e_charge_contracted failed')
 
+        from_fixed(int1e_angular_slice)
+
         i0, i1 = intopt.ao_loc[cpi], intopt.ao_loc[cpi+1]
         j0, j1 = intopt.ao_loc[cpj], intopt.ao_loc[cpj+1]
         if not mol.cart:
@@ -483,6 +486,8 @@ def get_int3c1e_density_contracted(mol, grids, charge_exponents, dm, intopt):
 
             if err != 0:
                 raise RuntimeError('GINTfill_int3c1e_density_contracted failed')
+
+    from_fixed(int3c_density_contracted)
 
     return int3c_density_contracted
 

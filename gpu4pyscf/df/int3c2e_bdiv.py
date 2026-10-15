@@ -16,6 +16,7 @@
 3-center 2-electron Coulomb integral helper functions
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import math
 import numpy as np
@@ -374,6 +375,7 @@ class Int3c2eOpt:
             ctypes.cast(gout_stride.data.ptr, ctypes.c_void_p))
         if err != 0:
             raise RuntimeError('contract_int3c2e_dm failed')
+        from_fixed(vj_aux)
         if hermi == 1:
             vj_aux *= 2
         if dm_ndim == 2:
@@ -431,6 +433,7 @@ class Int3c2eOpt:
             ctypes.cast(gout_stride.data.ptr, ctypes.c_void_p))
         if err != 0:
             raise RuntimeError('contract_int3c2e_auxvec kernel failed')
+        from_fixed(vj)
         log.timer_debug1('processing contract_int3c2e_auxvec', *t0)
 
         vj = hermi_triu(vj, inplace=True)
@@ -758,6 +761,7 @@ def _create_pair_recontractor(mol, int3c2e_context):
             ctypes.c_int(naux), ctypes.c_int(count))
         if err != 0:
             raise RuntimeError('recontract_ao_pair kernel failed')
+        from_fixed(out)
         return out
     return recontract, ao_pair_counts, contracted_ao_pair_counts, pair_addresses
 

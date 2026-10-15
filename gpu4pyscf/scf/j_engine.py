@@ -16,6 +16,7 @@
 J engine using McMurchie-Davidson algorithm
 '''
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import math
 import numpy as np
@@ -235,6 +236,7 @@ class _VHFOpt(jk._VHFOpt):
                     t1 = timing_collection.collect(llll, t1, msg)
                 if num_devices > 1:
                     stream.synchronize()
+            from_fixed(vj_xyz)
             return vj_xyz, kern_counts, timing_collection
 
         results = multi_gpu.run(proc, args=(dm_xyz,), non_blocking=True)

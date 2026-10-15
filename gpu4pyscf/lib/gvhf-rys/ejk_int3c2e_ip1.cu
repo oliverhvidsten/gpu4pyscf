@@ -348,9 +348,9 @@ void sum_ejk_int3c2e_ip1_kernel(double *ejk, double *ejk_aux,
                     }
                 }
                 if (gout_id == 0 && pair_ij < shl_pair1 && kidx < ksh1) {
-                    atomicAdd(ejk_aux+ka*3+0, reduce[0*THREADS]);
-                    atomicAdd(ejk_aux+ka*3+1, reduce[1*THREADS]);
-                    atomicAdd(ejk_aux+ka*3+2, reduce[2*THREADS]);
+                    fp_atomic_add(ejk_aux+ka*3+0, reduce[0*THREADS]);
+                    fp_atomic_add(ejk_aux+ka*3+1, reduce[1*THREADS]);
+                    fp_atomic_add(ejk_aux+ka*3+2, reduce[2*THREADS]);
                 }
             }
         }
@@ -375,12 +375,12 @@ void sum_ejk_int3c2e_ip1_kernel(double *ejk, double *ejk_aux,
             }
         }
         if (gout_id == 0 && pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, reduce[0*THREADS]);
-            atomicAdd(ejk+ia*3+1, reduce[1*THREADS]);
-            atomicAdd(ejk+ia*3+2, reduce[2*THREADS]);
-            atomicAdd(ejk+ja*3+0, reduce[3*THREADS]);
-            atomicAdd(ejk+ja*3+1, reduce[4*THREADS]);
-            atomicAdd(ejk+ja*3+2, reduce[5*THREADS]);
+            fp_atomic_add(ejk+ia*3+0, reduce[0*THREADS]);
+            fp_atomic_add(ejk+ia*3+1, reduce[1*THREADS]);
+            fp_atomic_add(ejk+ia*3+2, reduce[2*THREADS]);
+            fp_atomic_add(ejk+ja*3+0, reduce[3*THREADS]);
+            fp_atomic_add(ejk+ja*3+1, reduce[4*THREADS]);
+            fp_atomic_add(ejk+ja*3+2, reduce[5*THREADS]);
         }
     }
 }
@@ -692,9 +692,9 @@ void ejk_int3c2e_ip1_kernel(double *ejk, double *ejk_aux,
                     }
                     if (gout_id == 0 && pair_ij < shl_pair1 && kidx < ksh1) {
                         double *e = ejk_aux + n*natm*3;
-                        atomicAdd(e+ka*3+0, reduce[0*THREADS]);
-                        atomicAdd(e+ka*3+1, reduce[1*THREADS]);
-                        atomicAdd(e+ka*3+2, reduce[2*THREADS]);
+                        fp_atomic_add(e+ka*3+0, reduce[0*THREADS]);
+                        fp_atomic_add(e+ka*3+1, reduce[1*THREADS]);
+                        fp_atomic_add(e+ka*3+2, reduce[2*THREADS]);
                     }
                 }
             }
@@ -724,12 +724,12 @@ void ejk_int3c2e_ip1_kernel(double *ejk, double *ejk_aux,
             }
             if (gout_id == 0 && pair_ij < shl_pair1) {
                 double *e = ejk + n*natm*3;
-                atomicAdd(e+ia*3+0, reduce[0*THREADS]);
-                atomicAdd(e+ia*3+1, reduce[1*THREADS]);
-                atomicAdd(e+ia*3+2, reduce[2*THREADS]);
-                atomicAdd(e+ja*3+0, reduce[3*THREADS]);
-                atomicAdd(e+ja*3+1, reduce[4*THREADS]);
-                atomicAdd(e+ja*3+2, reduce[5*THREADS]);
+                fp_atomic_add(e+ia*3+0, reduce[0*THREADS]);
+                fp_atomic_add(e+ia*3+1, reduce[1*THREADS]);
+                fp_atomic_add(e+ia*3+2, reduce[2*THREADS]);
+                fp_atomic_add(e+ja*3+0, reduce[3*THREADS]);
+                fp_atomic_add(e+ja*3+1, reduce[4*THREADS]);
+                fp_atomic_add(e+ja*3+2, reduce[5*THREADS]);
             }
         }
     }

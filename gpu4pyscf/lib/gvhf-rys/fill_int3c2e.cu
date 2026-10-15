@@ -52,7 +52,7 @@ void int3c2e_kernel(double *out, RysIntEnvVars envs, double *pool,
 while (1) {
     __syncthreads();
     if (thread_id == 0) {
-        int batch_id = atomicAdd(head, 1);
+        int batch_id = fp_atomic_add(head, 1);
         // For better load balance, process sp_blocks in the reversed order
         sp_block_id = nbatches_shl_pair - 1 - batch_id / nbatches_ksh;
         ksh_block_id = nbatches_ksh - 1 - batch_id % nbatches_ksh;

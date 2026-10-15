@@ -36,7 +36,7 @@ void recontract_kernel(double *out, double *input, int *out_idx, int *inp_idx,
     input = input + inp_idx[row_id] * Naux;
     double c = coef[row_id];
     for (int i = thread_id; i < naux; i += threads) {
-        atomicAdd(out+i, input[i] * c);
+        fp_atomic_add(out+i, input[i] * c);
     }
 }
 
