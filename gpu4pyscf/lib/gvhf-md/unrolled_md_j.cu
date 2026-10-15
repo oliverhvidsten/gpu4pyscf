@@ -206,7 +206,7 @@ void md_j_0_0(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -218,7 +218,7 @@ void md_j_0_0(KERNEL_ARGS)
         int task_kl = blockIdx.y * 480 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*480]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*480]);
         }
     }
 }
@@ -406,7 +406,7 @@ void md_j_1_0(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -418,7 +418,7 @@ void md_j_1_0(KERNEL_ARGS)
         int task_kl = blockIdx.y * 368 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*368]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*368]);
         }
     }
 }
@@ -667,7 +667,7 @@ void md_j_1_1(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -679,7 +679,7 @@ void md_j_1_1(KERNEL_ARGS)
         int task_kl = blockIdx.y * 160 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*160]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*160]);
         }
     }
 }
@@ -888,7 +888,7 @@ void md_j_2_0(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -900,7 +900,7 @@ void md_j_2_0(KERNEL_ARGS)
         int task_kl = blockIdx.y * 256 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*256]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*256]);
         }
     }
 }
@@ -1206,7 +1206,7 @@ void md_j_2_1(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -1218,7 +1218,7 @@ void md_j_2_1(KERNEL_ARGS)
         int task_kl = blockIdx.y * 480 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*480]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*480]);
         }
     }
 }
@@ -1724,7 +1724,7 @@ void md_j_2_2(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -1736,7 +1736,7 @@ void md_j_2_2(KERNEL_ARGS)
         int task_kl = blockIdx.y * 224 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*224]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*224]);
         }
     }
 }
@@ -1984,7 +1984,7 @@ void md_j_3_0(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -1996,7 +1996,7 @@ void md_j_3_0(KERNEL_ARGS)
         int task_kl = blockIdx.y * 736 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*736]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*736]);
         }
     }
 }
@@ -2412,7 +2412,7 @@ void md_j_3_1(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -2424,7 +2424,7 @@ void md_j_3_1(KERNEL_ARGS)
         int task_kl = blockIdx.y * 384 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*384]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*384]);
         }
     }
 }
@@ -3171,7 +3171,7 @@ void md_j_3_2(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -3183,7 +3183,7 @@ void md_j_3_2(KERNEL_ARGS)
         int task_kl = blockIdx.y * 176 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*176]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*176]);
         }
     }
 }
@@ -3491,7 +3491,7 @@ void md_j_4_0(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -3503,7 +3503,7 @@ void md_j_4_0(KERNEL_ARGS)
         int task_kl = blockIdx.y * 576 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*576]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*576]);
         }
     }
 }
@@ -4094,7 +4094,7 @@ void md_j_4_1(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -4106,7 +4106,7 @@ void md_j_4_1(KERNEL_ARGS)
         int task_kl = blockIdx.y * 288 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*288]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*288]);
         }
     }
 }
@@ -4634,7 +4634,7 @@ void md_j_5_0(KERNEL_ARGS)
             }
             __syncthreads();
             if (ty == 0 && task_ij < npairs_ij) {
-                atomicAdd(vj+ij_loc0+n, vj_cache[thread_id]);
+                fp_atomic_add(vj+ij_loc0+n, vj_cache[thread_id]);
             }
         }
         }
@@ -4646,7 +4646,7 @@ void md_j_5_0(KERNEL_ARGS)
         int task_kl = blockIdx.y * 416 + sq_kl;
         if (task_kl < npairs_kl) {
             int kl_loc0 = pair_kl_loc[task_kl];
-            atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*416]);
+            fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*416]);
         }
     }
 }

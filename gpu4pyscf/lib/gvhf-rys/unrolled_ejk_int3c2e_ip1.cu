@@ -208,9 +208,9 @@ void int3c2e_ip1_000(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -223,12 +223,12 @@ void int3c2e_ip1_000(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }
@@ -462,9 +462,9 @@ void int3c2e_ip1_100(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -477,12 +477,12 @@ void int3c2e_ip1_100(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }
@@ -851,9 +851,9 @@ void int3c2e_ip1_110(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -866,12 +866,12 @@ void int3c2e_ip1_110(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }
@@ -1171,9 +1171,9 @@ void int3c2e_ip1_200(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -1186,12 +1186,12 @@ void int3c2e_ip1_200(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }
@@ -1429,9 +1429,9 @@ void int3c2e_ip1_001(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -1444,12 +1444,12 @@ void int3c2e_ip1_001(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }
@@ -1817,9 +1817,9 @@ void int3c2e_ip1_101(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -1832,12 +1832,12 @@ void int3c2e_ip1_101(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }
@@ -2139,9 +2139,9 @@ void int3c2e_ip1_002(KERNEL_ARGS)
                     double v_kx = -v_ix - v_jx;
                     double v_ky = -v_iy - v_jy;
                     double v_kz = -v_iz - v_jz;
-                    atomicAdd(ejk_aux+ka*3+0, v_kx);
-                    atomicAdd(ejk_aux+ka*3+1, v_ky);
-                    atomicAdd(ejk_aux+ka*3+2, v_kz);
+                    fp_atomic_add(ejk_aux+ka*3+0, v_kx);
+                    fp_atomic_add(ejk_aux+ka*3+1, v_ky);
+                    fp_atomic_add(ejk_aux+ka*3+2, v_kz);
                 }
             }
             grad_ix += v_ix;
@@ -2154,12 +2154,12 @@ void int3c2e_ip1_002(KERNEL_ARGS)
         int ia = bas[ish*BAS_SLOTS+ATOM_OF];
         int ja = bas[jsh*BAS_SLOTS+ATOM_OF];
         if (pair_ij < shl_pair1) {
-            atomicAdd(ejk+ia*3+0, grad_ix);
-            atomicAdd(ejk+ia*3+1, grad_iy);
-            atomicAdd(ejk+ia*3+2, grad_iz);
-            atomicAdd(ejk+ja*3+0, grad_jx);
-            atomicAdd(ejk+ja*3+1, grad_jy);
-            atomicAdd(ejk+ja*3+2, grad_jz);
+            fp_atomic_add(ejk+ia*3+0, grad_ix);
+            fp_atomic_add(ejk+ia*3+1, grad_iy);
+            fp_atomic_add(ejk+ia*3+2, grad_iz);
+            fp_atomic_add(ejk+ja*3+0, grad_jx);
+            fp_atomic_add(ejk+ja*3+1, grad_jy);
+            fp_atomic_add(ejk+ja*3+2, grad_jz);
         }
     }
 }

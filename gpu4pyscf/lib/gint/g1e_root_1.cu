@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "../fixed_point.cuh"
 #include <math.h>
 #include "cint2e.cuh"
 
@@ -154,7 +155,7 @@ static void GINTfill_int3c1e_charge_contracted_kernel00(double* output, const Ba
     const int i0 = ao_loc[ish] - ao_offsets_i;
     const int j0 = ao_loc[jsh] - ao_offsets_j;
 
-    atomicAdd(output + (i0 + j0 * stride_j), eri_grid_sum);
+    fp_atomic_add(output + (i0 + j0 * stride_j), eri_grid_sum);
 }
 
 __global__
@@ -222,7 +223,7 @@ static void GINTfill_int3c1e_density_contracted_kernel00(double* output, const d
         const double D = density[bas_ij - hermite_density_offsets.pair_offset_of_angular_pair + hermite_density_offsets.density_offset_of_angular_pair];
         eri_pair_sum += D * eri_per_pair;
     }
-    atomicAdd(output + task_grid, eri_pair_sum);
+    fp_atomic_add(output + task_grid, eri_pair_sum);
 }
 
 __global__
@@ -419,9 +420,9 @@ static void GINTfill_int3c1e_charge_contracted_kernel10(double* output, const Ba
     const int* ao_loc = c_bpcache.ao_loc;
     const int i0 = ao_loc[ish] - ao_offsets_i;
     const int j0 = ao_loc[jsh] - ao_offsets_j;
-    atomicAdd(output + (i0 + 0 + j0 * stride_j), eri_grid_sum_x);
-    atomicAdd(output + (i0 + 1 + j0 * stride_j), eri_grid_sum_y);
-    atomicAdd(output + (i0 + 2 + j0 * stride_j), eri_grid_sum_z);
+    fp_atomic_add(output + (i0 + 0 + j0 * stride_j), eri_grid_sum_x);
+    fp_atomic_add(output + (i0 + 1 + j0 * stride_j), eri_grid_sum_y);
+    fp_atomic_add(output + (i0 + 2 + j0 * stride_j), eri_grid_sum_z);
 }
 
 __global__
@@ -519,5 +520,5 @@ static void GINTfill_int3c1e_density_contracted_kernel10(double* output, const d
 
         eri_pair_sum += D_x * eri_per_pair_x + D_y * eri_per_pair_y + D_z * eri_per_pair_z;
     }
-    atomicAdd(output + task_grid, eri_pair_sum);
+    fp_atomic_add(output + task_grid, eri_pair_sum);
 }

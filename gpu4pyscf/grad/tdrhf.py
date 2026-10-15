@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import math
 import ctypes
 from functools import reduce
@@ -457,6 +458,7 @@ def _jk_energies_per_atom(vhfopt, dm_pairs, j_factor=None, k_factor=None,
                 ntasks = npairs_ij * npairs_kl
                 msg = f'processing {llll} on Device {device_id} tasks ~= {ntasks}'
                 t1 = timing_collection.collect(llll, t1, msg)
+        from_fixed(ejk)
         return ejk, kern_counts, timing_collection
 
     results = multi_gpu.run(proc, non_blocking=True)

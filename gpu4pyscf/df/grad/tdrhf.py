@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import warnings
 import ctypes
 import numpy as np
@@ -205,6 +206,7 @@ def _jk_energy_per_atom(int3c2e_opt, dms, j_factor=None, k_factor=None, hermi=0,
             ctypes.c_int(naux_in_batch), ctypes.c_int(mol.natm))
         if err != 0:
             raise RuntimeError('int3c2e_ejk_ip1 failed')
+    from_fixed(ejk); from_fixed(ejk_aux)
     buf = buf1 = buf2 = compressed = dm_tensor = dm_tensor1 = tmp = None
     if hermi == 1:
         ejk *= 2
@@ -299,6 +301,7 @@ def _j_energy_per_atom(int3c2e_opt, dms, j_factor, hermi=0, verbose=None):
         ctypes.c_int(naux), ctypes.c_int(mol.natm))
     if err != 0:
         raise RuntimeError('int3c2e_ejk_ip1 failed')
+    from_fixed(ej); from_fixed(ej_aux)
     ej *= 2
     ej_aux *= 2
     ej = ej.get()
@@ -627,6 +630,7 @@ def _jk_energies_by_dm_factors(int3c2e_opt, dm_factors, j_factor, k_factor,
             ctypes.c_int(naux_in_batch), ctypes.c_int(mol.natm))
         if err != 0:
             raise RuntimeError('int3c2e_ejk_ip1 failed')
+    from_fixed(ejk); from_fixed(ejk_aux)
     ejk += ejk_aux
     ejk *= .5
     ejk = ejk.get()
@@ -727,6 +731,7 @@ def _j_energies_per_atom(int3c2e_opt, dm_pairs, j_factor,
     if err != 0:
         raise RuntimeError('int3c2e_ejk_ip1 failed')
 
+    from_fixed(ej); from_fixed(ej_aux)
     if not sum_results:
         ej = ej[0] + ej[1]
         ej_aux = ej_aux[0] + ej_aux[1]

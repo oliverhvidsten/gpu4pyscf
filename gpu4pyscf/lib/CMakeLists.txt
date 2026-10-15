@@ -66,6 +66,8 @@ if (BUILD_MARCH_NATIVE)
   endif()
 endif()
 
+option(BUILD_FIXED_POINT "Also build lib*_fp.so variants with order-independent (int64 fixed-point) accumulation" ON)
+set(FIXED_POINT_SHIFT 48 CACHE STRING "Fractional bits of the fixed-point accumulators")
 option(ENABLE_OPENMP "Compiling C extensions with openmp" ON)
 set(OPENMP_C_PROPERTIES "")
 if(ENABLE_OPENMP)

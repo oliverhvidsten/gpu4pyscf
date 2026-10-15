@@ -1,6 +1,6 @@
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")# -maxrregcount=128")
 
-add_library(gvhf_rys SHARED
+set(GVHF_RYS_SOURCES
   rys_jk_driver.cu rys_roots_dat.cu
   nr_sr_estimator.c nr_sr_estimator.cu
   rys_contract_j.cu cart2xyz.c #unrolled_rys_j.cu
@@ -17,7 +17,9 @@ add_library(gvhf_rys SHARED
   ejk_int3c2e_ip2.cu fill_int3c2e_ip1.cu
   e_int2c2e_ip2.cu
   fill_int4c2e.cu
+  ${CMAKE_CURRENT_SOURCE_DIR}/../fixed_point.cu
 )
+add_library(gvhf_rys SHARED ${GVHF_RYS_SOURCES})
 
 #option(BUILD_SHARED_LIBS "build shared libraries" 1)
 #option(ENABLE_STATIC "Enforce static library build" 0)
@@ -30,3 +32,12 @@ set_target_properties(gvhf_rys PROPERTIES
   CUDA_SEPARABLE_COMPILATION ON)
 
 target_link_libraries(gvhf_rys OpenMP::OpenMP_C)
+
+if(BUILD_FIXED_POINT)
+  add_library(gvhf_rys_fp SHARED ${GVHF_RYS_SOURCES})
+  set_target_properties(gvhf_rys_fp PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}
+    CUDA_SEPARABLE_COMPILATION ON)
+  target_compile_definitions(gvhf_rys_fp PRIVATE FIXED_POINT_ACCUM=1 FIXED_POINT_SHIFT=${FIXED_POINT_SHIFT})
+  target_link_libraries(gvhf_rys_fp OpenMP::OpenMP_C)
+endif()

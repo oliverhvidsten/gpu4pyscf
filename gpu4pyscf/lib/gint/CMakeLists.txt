@@ -15,7 +15,7 @@
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --ptxas-options=-v")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-add_library(gint SHARED 
+set(GINT_SOURCES
   g2e.c
   pair_data.c
   bpcache.cu
@@ -34,7 +34,9 @@ add_library(gint SHARED
   j_engine_matrix_reorder.c
   rys_roots_dat.cu
   cart2sph.cu
+  ${CMAKE_CURRENT_SOURCE_DIR}/../fixed_point.cu
 )
+add_library(gint SHARED ${GINT_SOURCES})
 
 #option(BUILD_SHARED_LIBS "build shared libraries" 1)
 #option(ENABLE_STATIC "Enforce static library build" 0)
@@ -45,3 +47,11 @@ add_library(gint SHARED
 set_target_properties(gint PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}
   CUDA_SEPARABLE_COMPILATION ON)
+
+if(BUILD_FIXED_POINT)
+  add_library(gint_fp SHARED ${GINT_SOURCES})
+  set_target_properties(gint_fp PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}
+    CUDA_SEPARABLE_COMPILATION ON)
+  target_compile_definitions(gint_fp PRIVATE FIXED_POINT_ACCUM=1 FIXED_POINT_SHIFT=${FIXED_POINT_SHIFT})
+endif()

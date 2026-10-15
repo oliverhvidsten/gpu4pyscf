@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "../fixed_point.cuh"
 #include "gint.h"
 
 template <int NROOTS>
@@ -246,9 +247,9 @@ static void GINTfill_int3c1e_ip1_charge_contracted_kernel_expanded(double* outpu
             const double deri_dAx = output_cache[i + j * n_density_elements_i + 0 * n_density_elements_ij];
             const double deri_dAy = output_cache[i + j * n_density_elements_i + 1 * n_density_elements_ij];
             const double deri_dAz = output_cache[i + j * n_density_elements_i + 2 * n_density_elements_ij];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), deri_dAx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), deri_dAy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), deri_dAz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), deri_dAx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), deri_dAy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), deri_dAz);
         }
     }
 }
@@ -359,9 +360,9 @@ static void GINTfill_int3c1e_ip1_charge_contracted_kernel_general(double* output
             const double deri_dAx = output_cache[i + j * n_density_elements_i + 0 * n_density_elements_ij];
             const double deri_dAy = output_cache[i + j * n_density_elements_i + 1 * n_density_elements_ij];
             const double deri_dAz = output_cache[i + j * n_density_elements_i + 2 * n_density_elements_ij];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), deri_dAx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), deri_dAy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), deri_dAz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), deri_dAx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), deri_dAy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), deri_dAz);
         }
     }
 }
@@ -422,9 +423,9 @@ static void GINTwrite_int3c1e_ip1_density_contracted(const double* g, double* ou
             deri_dAx *= Dij;
             deri_dAy *= Dij;
             deri_dAz *= Dij;
-            atomicAdd(output + (i_grid + ngrids * (i_atom * 3 + 0)), deri_dAx);
-            atomicAdd(output + (i_grid + ngrids * (i_atom * 3 + 1)), deri_dAy);
-            atomicAdd(output + (i_grid + ngrids * (i_atom * 3 + 2)), deri_dAz);
+            fp_atomic_add(output + (i_grid + ngrids * (i_atom * 3 + 0)), deri_dAx);
+            fp_atomic_add(output + (i_grid + ngrids * (i_atom * 3 + 1)), deri_dAy);
+            fp_atomic_add(output + (i_grid + ngrids * (i_atom * 3 + 2)), deri_dAz);
         }
     }
 }
@@ -558,9 +559,9 @@ static void GINTfill_int3c1e_ip2_density_contracted_kernel_general(double* outpu
         deri_dCy_pair_sum += deri_dCy_per_pair;
         deri_dCz_pair_sum += deri_dCz_per_pair;
     }
-    atomicAdd(output + task_grid + ngrids * 0, deri_dCx_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 1, deri_dCy_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 2, deri_dCz_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 0, deri_dCx_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 1, deri_dCy_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 2, deri_dCz_pair_sum);
 }
 
 template <int NROOTS>
@@ -624,9 +625,9 @@ static void GINTwrite_int3c1e_ip2_charge_contracted(const double* g, double* out
             deri_dCy *= prefactor;
             deri_dCz *= prefactor;
 
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij + i_atom * 3 * stride_ij), deri_dCx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij + i_atom * 3 * stride_ij), deri_dCy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij + i_atom * 3 * stride_ij), deri_dCz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij + i_atom * 3 * stride_ij), deri_dCx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij + i_atom * 3 * stride_ij), deri_dCy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij + i_atom * 3 * stride_ij), deri_dCz);
         }
     }
 }

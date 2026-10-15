@@ -69,7 +69,7 @@ void rys_vjk_ip1_kernel(RysIntEnvVars envs, JKMatrix jk, BoundsInfo bounds,
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);
@@ -319,30 +319,30 @@ while (1) {
                 if (do_j) {
                     int _ji = _j*nao+_i;
                     int _lk = _l*nao+_k;
-                    atomicAdd(vj_x+_lk, sx * dm[_ji]);
-                    atomicAdd(vj_y+_lk, sy * dm[_ji]);
-                    atomicAdd(vj_z+_lk, sz * dm[_ji]);
-                    atomicAdd(vj_x+_ji, sx * dm[_lk]);
-                    atomicAdd(vj_y+_ji, sy * dm[_lk]);
-                    atomicAdd(vj_z+_ji, sz * dm[_lk]);
+                    fp_atomic_add(vj_x+_lk, sx * dm[_ji]);
+                    fp_atomic_add(vj_y+_lk, sy * dm[_ji]);
+                    fp_atomic_add(vj_z+_lk, sz * dm[_ji]);
+                    fp_atomic_add(vj_x+_ji, sx * dm[_lk]);
+                    fp_atomic_add(vj_y+_ji, sy * dm[_lk]);
+                    fp_atomic_add(vj_z+_ji, sz * dm[_lk]);
                 }
                 if (do_k) {
                     int _jl = _j*nao+_l;
                     int _jk = _j*nao+_k;
                     int _il = _i*nao+_l;
                     int _ik = _i*nao+_k;
-                    atomicAdd(vk_x+_ik, sx * dm[_jl]);
-                    atomicAdd(vk_y+_ik, sy * dm[_jl]);
-                    atomicAdd(vk_z+_ik, sz * dm[_jl]);
-                    atomicAdd(vk_x+_il, sx * dm[_jk]);
-                    atomicAdd(vk_y+_il, sy * dm[_jk]);
-                    atomicAdd(vk_z+_il, sz * dm[_jk]);
-                    atomicAdd(vk_x+_jk, sx * dm[_il]);
-                    atomicAdd(vk_y+_jk, sy * dm[_il]);
-                    atomicAdd(vk_z+_jk, sz * dm[_il]);
-                    atomicAdd(vk_x+_jl, sx * dm[_ik]);
-                    atomicAdd(vk_y+_jl, sy * dm[_ik]);
-                    atomicAdd(vk_z+_jl, sz * dm[_ik]);
+                    fp_atomic_add(vk_x+_ik, sx * dm[_jl]);
+                    fp_atomic_add(vk_y+_ik, sy * dm[_jl]);
+                    fp_atomic_add(vk_z+_ik, sz * dm[_jl]);
+                    fp_atomic_add(vk_x+_il, sx * dm[_jk]);
+                    fp_atomic_add(vk_y+_il, sy * dm[_jk]);
+                    fp_atomic_add(vk_z+_il, sz * dm[_jk]);
+                    fp_atomic_add(vk_x+_jk, sx * dm[_il]);
+                    fp_atomic_add(vk_y+_jk, sy * dm[_il]);
+                    fp_atomic_add(vk_z+_jk, sz * dm[_il]);
+                    fp_atomic_add(vk_x+_jl, sx * dm[_ik]);
+                    fp_atomic_add(vk_y+_jl, sy * dm[_ik]);
+                    fp_atomic_add(vk_z+_jl, sz * dm[_ik]);
                 }
             }
         }
@@ -411,7 +411,7 @@ void rys_ejk_ip1_kernel(RysIntEnvVars envs, JKEnergy jk, BoundsInfo bounds,
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);
@@ -717,12 +717,12 @@ while (1) {
         }
         if (gout_id == 0 && task_id < ntasks) {
             double *ejk = jk.ejk;
-            atomicAdd(ejk+ka*3+0, reduce[0*threads]);
-            atomicAdd(ejk+ka*3+1, reduce[1*threads]);
-            atomicAdd(ejk+ka*3+2, reduce[2*threads]);
-            atomicAdd(ejk+la*3+0, reduce[3*threads]);
-            atomicAdd(ejk+la*3+1, reduce[4*threads]);
-            atomicAdd(ejk+la*3+2, reduce[5*threads]);
+            fp_atomic_add(ejk+ka*3+0, reduce[0*threads]);
+            fp_atomic_add(ejk+ka*3+1, reduce[1*threads]);
+            fp_atomic_add(ejk+ka*3+2, reduce[2*threads]);
+            fp_atomic_add(ejk+la*3+0, reduce[3*threads]);
+            fp_atomic_add(ejk+la*3+1, reduce[4*threads]);
+            fp_atomic_add(ejk+la*3+2, reduce[5*threads]);
         }
     }
     int ia = bas[ish*BAS_SLOTS+ATOM_OF];
@@ -747,12 +747,12 @@ while (1) {
     }
     if (gout_id == 0) {
         double *ejk = jk.ejk;
-        atomicAdd(ejk+ia*3+0, reduce[0*threads]);
-        atomicAdd(ejk+ia*3+1, reduce[1*threads]);
-        atomicAdd(ejk+ia*3+2, reduce[2*threads]);
-        atomicAdd(ejk+ja*3+0, reduce[3*threads]);
-        atomicAdd(ejk+ja*3+1, reduce[4*threads]);
-        atomicAdd(ejk+ja*3+2, reduce[5*threads]);
+        fp_atomic_add(ejk+ia*3+0, reduce[0*threads]);
+        fp_atomic_add(ejk+ia*3+1, reduce[1*threads]);
+        fp_atomic_add(ejk+ia*3+2, reduce[2*threads]);
+        fp_atomic_add(ejk+ja*3+0, reduce[3*threads]);
+        fp_atomic_add(ejk+ja*3+1, reduce[4*threads]);
+        fp_atomic_add(ejk+ja*3+2, reduce[5*threads]);
     }
 }
 }
@@ -812,7 +812,7 @@ void rys_ejk_ip1_multidm_kernel(RysIntEnvVars envs, JKEnergy jk, BoundsInfo boun
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);
@@ -1178,12 +1178,12 @@ while (1) {
             }
             if (gout_id == 0 && task_id < ntasks) {
                 double *ejk = jk.ejk + i_dm * natm * 3;
-                atomicAdd(ejk+ka*3+0, reduce[0*threads]);
-                atomicAdd(ejk+ka*3+1, reduce[1*threads]);
-                atomicAdd(ejk+ka*3+2, reduce[2*threads]);
-                atomicAdd(ejk+la*3+0, reduce[3*threads]);
-                atomicAdd(ejk+la*3+1, reduce[4*threads]);
-                atomicAdd(ejk+la*3+2, reduce[5*threads]);
+                fp_atomic_add(ejk+ka*3+0, reduce[0*threads]);
+                fp_atomic_add(ejk+ka*3+1, reduce[1*threads]);
+                fp_atomic_add(ejk+ka*3+2, reduce[2*threads]);
+                fp_atomic_add(ejk+la*3+0, reduce[3*threads]);
+                fp_atomic_add(ejk+la*3+1, reduce[4*threads]);
+                fp_atomic_add(ejk+la*3+2, reduce[5*threads]);
             }
         }
     }
@@ -1213,12 +1213,12 @@ while (1) {
         }
         if (gout_id == 0) {
             double *ejk = jk.ejk + i_dm * natm * 3;
-            atomicAdd(ejk+ia*3+0, reduce[0*threads]);
-            atomicAdd(ejk+ia*3+1, reduce[1*threads]);
-            atomicAdd(ejk+ia*3+2, reduce[2*threads]);
-            atomicAdd(ejk+ja*3+0, reduce[3*threads]);
-            atomicAdd(ejk+ja*3+1, reduce[4*threads]);
-            atomicAdd(ejk+ja*3+2, reduce[5*threads]);
+            fp_atomic_add(ejk+ia*3+0, reduce[0*threads]);
+            fp_atomic_add(ejk+ia*3+1, reduce[1*threads]);
+            fp_atomic_add(ejk+ia*3+2, reduce[2*threads]);
+            fp_atomic_add(ejk+ja*3+0, reduce[3*threads]);
+            fp_atomic_add(ejk+ja*3+1, reduce[4*threads]);
+            fp_atomic_add(ejk+ja*3+2, reduce[5*threads]);
         }
     }
 }
@@ -1280,7 +1280,7 @@ void rys_ejk_ip1_sum_kernel(RysIntEnvVars envs, JKEnergy jk, BoundsInfo bounds,
 while (1) {
     __syncthreads();
     if (t_id == 0) {
-        int task_id = atomicAdd(head, 1);
+        int task_id = fp_atomic_add(head, 1);
         int batch_kl = task_id / bounds.npairs_ij;
         pair_ij = task_id - bounds.npairs_ij * batch_kl;
         pair_kl0 = batch_kl * (QUEUE_DEPTH - 512);
@@ -1603,12 +1603,12 @@ while (1) {
         }
         if (gout_id == 0 && task_id < ntasks) {
             double *ejk = jk.ejk;
-            atomicAdd(ejk+ka*3+0, reduce[0*threads]);
-            atomicAdd(ejk+ka*3+1, reduce[1*threads]);
-            atomicAdd(ejk+ka*3+2, reduce[2*threads]);
-            atomicAdd(ejk+la*3+0, reduce[3*threads]);
-            atomicAdd(ejk+la*3+1, reduce[4*threads]);
-            atomicAdd(ejk+la*3+2, reduce[5*threads]);
+            fp_atomic_add(ejk+ka*3+0, reduce[0*threads]);
+            fp_atomic_add(ejk+ka*3+1, reduce[1*threads]);
+            fp_atomic_add(ejk+ka*3+2, reduce[2*threads]);
+            fp_atomic_add(ejk+la*3+0, reduce[3*threads]);
+            fp_atomic_add(ejk+la*3+1, reduce[4*threads]);
+            fp_atomic_add(ejk+la*3+2, reduce[5*threads]);
         }
     }
     int ia = bas[ish*BAS_SLOTS+ATOM_OF];
@@ -1633,12 +1633,12 @@ while (1) {
     }
     if (gout_id == 0) {
         double *ejk = jk.ejk;
-        atomicAdd(ejk+ia*3+0, reduce[0*threads]);
-        atomicAdd(ejk+ia*3+1, reduce[1*threads]);
-        atomicAdd(ejk+ia*3+2, reduce[2*threads]);
-        atomicAdd(ejk+ja*3+0, reduce[3*threads]);
-        atomicAdd(ejk+ja*3+1, reduce[4*threads]);
-        atomicAdd(ejk+ja*3+2, reduce[5*threads]);
+        fp_atomic_add(ejk+ia*3+0, reduce[0*threads]);
+        fp_atomic_add(ejk+ia*3+1, reduce[1*threads]);
+        fp_atomic_add(ejk+ia*3+2, reduce[2*threads]);
+        fp_atomic_add(ejk+ja*3+0, reduce[3*threads]);
+        fp_atomic_add(ejk+ja*3+1, reduce[4*threads]);
+        fp_atomic_add(ejk+ja*3+2, reduce[5*threads]);
     }
 }
 }

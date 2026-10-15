@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import math
 import numpy as np
@@ -143,6 +144,7 @@ class Int3c2eOpt:
                 ctypes.c_double(omega))
             if err != 0:
                 raise RuntimeError('contract_int3c2e_dm kernel failed')
+        from_fixed(vj_aux)
         if hermi == 1:
             vj_aux *= 2
         if dm_ndim == 2:
@@ -221,6 +223,7 @@ class Int3c2eOpt:
                 ctypes.c_double(omega))
             if err != 0:
                 raise RuntimeError('contract_int3c2e_auxvec kernel failed')
+            from_fixed(vj_xyz[i_dm])
             _Rt_to_dm(mol, vj_xyz[i_dm], shl_pair_idx, pair_loc, int3c2e_envs, out=vj[i_dm])
         log.timer_debug1('processing contract_int3c2e_auxvec', *t0)
 

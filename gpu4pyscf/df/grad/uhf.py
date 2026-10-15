@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from gpu4pyscf.lib.fixed_point import from_fixed
 import ctypes
 import numpy as np
 import cupy as cp
@@ -195,6 +196,7 @@ def _jk_energy_per_atom(int3c2e_opt, dm, j_factor=1, k_factor=1, hermi=0,
             ctypes.c_int(naux_in_batch), ctypes.c_int(mol.natm))
         if err != 0:
             raise RuntimeError('int3c2e_ejk_ip1 failed')
+    from_fixed(ejk); from_fixed(ejk_aux)
     buf = buf1 = buf2 = compressed = dm_tensor = dm_tensor1 = tmp = None
     if hermi == 1:
         ejk *= 2

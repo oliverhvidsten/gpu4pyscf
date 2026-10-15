@@ -140,7 +140,7 @@ void bra_to_sorted_kernel(double *out, double *input, double *recontract_coef,
                         s += cval[n] * c[n*nprim];
                     }
                     pgto[(size_t)(p_ao_offsets[ip]+i)*ncol+col_id] += s;
-                    //atomicAdd(pgto+(p_ao_offsets[ip]+i)*ncol+col_id,  s);
+                    //fp_atomic_add(pgto+(p_ao_offsets[ip]+i)*ncol+col_id,  s);
                 }
             }
         }

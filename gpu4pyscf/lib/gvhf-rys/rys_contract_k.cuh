@@ -227,6 +227,6 @@ void dot_dm(double *vk, double *dm_cache, double *gout, int nao, int i0, int l0,
             int n = i * I + j * J + k * K + l * L;
             v += gout[n] * dm_cache[j*3+k];
         } }
-        atomicAdd(vk_local+i*nao+l, v);
+        fp_atomic_add(vk_local+i*nao+l, v);
     } }
 }

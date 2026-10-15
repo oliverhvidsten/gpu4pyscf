@@ -55,7 +55,7 @@ void _store_vj_aux(double *out, double *vj_xyz, int n_dm, int naux)
         if (m >= n_dm) break;
 #pragma unroll
         for (uint32_t k = 0; k < NF; k++) {
-            atomicAdd(out+m*naux+k, vj_xyz[m*NF+k]);
+            fp_atomic_add(out+m*naux+k, vj_xyz[m*NF+k]);
         }
     }
 }
@@ -109,7 +109,7 @@ void _store_vj(double *out, double *vj_cache, int li, int lj, size_t nao,
         int i = ij - nfi * j;
 #pragma unroll
         for (int m = 0; m < N_DM; ++m) {
-            atomicAdd(out + m*nao2 + i*nao+j, vj_cache[n*N_DM+m]);
+            fp_atomic_add(out + m*nao2 + i*nao+j, vj_cache[n*N_DM+m]);
         }
     }
 }

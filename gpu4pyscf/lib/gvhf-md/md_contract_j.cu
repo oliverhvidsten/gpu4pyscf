@@ -375,7 +375,7 @@ void md_j_1dm_kernel(RysIntEnvVars envs, JKMatrix jk, MDBoundsInfo bounds,
                 }
                 __syncthreads();
                 if (ty == 0 && i < nf3ij && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+i, vj_cache[0]);
+                    fp_atomic_add(vj+ij_loc0+i, vj_cache[0]);
                 }
             }
         }
@@ -392,7 +392,7 @@ void md_j_1dm_kernel(RysIntEnvVars envs, JKMatrix jk, MDBoundsInfo bounds,
             int task_kl = blockIdx.y * bsizey + sq_kl;
             if (task_kl < npairs_kl) {
                 int kl_loc0 = pair_kl_loc[task_kl];
-                atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*bsizey]);
+                fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*bsizey]);
             }
         }
     }
@@ -827,7 +827,7 @@ void md_j_4dm_kernel(RysIntEnvVars envs, JKMatrix jk, MDBoundsInfo bounds,
                 }
                 __syncthreads();
                 if (ty == 0 && i < nf3ij && task_ij < npairs_ij) {
-                    atomicAdd(vj+ij_loc0+i, vj_cache[0]);
+                    fp_atomic_add(vj+ij_loc0+i, vj_cache[0]);
                 }
             }
         } else if (jk.n_dm == 2) {
@@ -848,8 +848,8 @@ void md_j_4dm_kernel(RysIntEnvVars envs, JKMatrix jk, MDBoundsInfo bounds,
                 }
                 __syncthreads();
                 if (ty == 0 && i < nf3ij && task_ij < npairs_ij) {
-                    atomicAdd(vj        +ij_loc0+i, vj_cache [0]);
-                    atomicAdd(vj+dm_size+ij_loc0+i, vj_cache1[0]);
+                    fp_atomic_add(vj        +ij_loc0+i, vj_cache [0]);
+                    fp_atomic_add(vj+dm_size+ij_loc0+i, vj_cache1[0]);
                 }
             }
         } else {
@@ -872,7 +872,7 @@ void md_j_4dm_kernel(RysIntEnvVars envs, JKMatrix jk, MDBoundsInfo bounds,
                 __syncthreads();
                 if (ty == 0 && i < nf3ij && task_ij < npairs_ij) {
                     for (int m = 0; m < min(jk.n_dm, DM_BLOCK); ++m) {
-                        atomicAdd(vj+dm_size*m+ij_loc0+i, vj_cache[threads*m]);
+                        fp_atomic_add(vj+dm_size*m+ij_loc0+i, vj_cache[threads*m]);
                     }
                 }
             }
@@ -899,22 +899,22 @@ void md_j_4dm_kernel(RysIntEnvVars envs, JKMatrix jk, MDBoundsInfo bounds,
                 int kl_loc0 = pair_kl_loc[task_kl];
                 switch (jk.n_dm) {
                 case 1:
-                    atomicAdd(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj+kl_loc0+kl, vj_kl_cache[sq_kl+kl*bsizey]);
                     break;
                 case 2:
-                    atomicAdd(vj +kl_loc0+kl, vj_kl_cache [sq_kl+kl*bsizey]);
-                    atomicAdd(vj1+kl_loc0+kl, vj_kl_cache1[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj +kl_loc0+kl, vj_kl_cache [sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj1+kl_loc0+kl, vj_kl_cache1[sq_kl+kl*bsizey]);
                     break;
                 case 3:
-                    atomicAdd(vj +kl_loc0+kl, vj_kl_cache [sq_kl+kl*bsizey]);
-                    atomicAdd(vj1+kl_loc0+kl, vj_kl_cache1[sq_kl+kl*bsizey]);
-                    atomicAdd(vj2+kl_loc0+kl, vj_kl_cache2[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj +kl_loc0+kl, vj_kl_cache [sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj1+kl_loc0+kl, vj_kl_cache1[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj2+kl_loc0+kl, vj_kl_cache2[sq_kl+kl*bsizey]);
                     break;
                 default:
-                    atomicAdd(vj +kl_loc0+kl, vj_kl_cache [sq_kl+kl*bsizey]);
-                    atomicAdd(vj1+kl_loc0+kl, vj_kl_cache1[sq_kl+kl*bsizey]);
-                    atomicAdd(vj2+kl_loc0+kl, vj_kl_cache2[sq_kl+kl*bsizey]);
-                    atomicAdd(vj3+kl_loc0+kl, vj_kl_cache3[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj +kl_loc0+kl, vj_kl_cache [sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj1+kl_loc0+kl, vj_kl_cache1[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj2+kl_loc0+kl, vj_kl_cache2[sq_kl+kl*bsizey]);
+                    fp_atomic_add(vj3+kl_loc0+kl, vj_kl_cache3[sq_kl+kl*bsizey]);
                 }
             }
         }

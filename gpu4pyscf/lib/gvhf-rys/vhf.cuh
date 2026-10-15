@@ -140,6 +140,7 @@ typedef struct {
 } Fold3Index;
 
 #ifdef __CUDACC__
+#include "../fixed_point.cuh"
 __device__ __forceinline__ unsigned get_smid()
 {
     unsigned smid;

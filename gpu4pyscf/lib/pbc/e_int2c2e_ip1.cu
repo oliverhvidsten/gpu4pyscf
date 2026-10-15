@@ -219,23 +219,23 @@ void int2c2e_deriv_kernel(double *de, double *sigma, double *dm, PBCIntEnvVars e
             double grad_jx = -grad_ix;
             double grad_jy = -grad_iy;
             double grad_jz = -grad_iz;
-            atomicAdd(de+ia*3+0, grad_ix);
-            atomicAdd(de+ia*3+1, grad_iy);
-            atomicAdd(de+ia*3+2, grad_iz);
-            atomicAdd(de+ja*3+0, grad_jx);
-            atomicAdd(de+ja*3+1, grad_jy);
-            atomicAdd(de+ja*3+2, grad_jz);
+            fp_atomic_add(de+ia*3+0, grad_ix);
+            fp_atomic_add(de+ia*3+1, grad_iy);
+            fp_atomic_add(de+ia*3+2, grad_iz);
+            fp_atomic_add(de+ja*3+0, grad_jx);
+            fp_atomic_add(de+ja*3+1, grad_jy);
+            fp_atomic_add(de+ja*3+2, grad_jz);
         }
     }
-    atomicAdd(sigma+0, sigma_xx);
-    atomicAdd(sigma+1, sigma_xy);
-    atomicAdd(sigma+2, sigma_xz);
-    atomicAdd(sigma+3, sigma_yx);
-    atomicAdd(sigma+4, sigma_yy);
-    atomicAdd(sigma+5, sigma_yz);
-    atomicAdd(sigma+6, sigma_zx);
-    atomicAdd(sigma+7, sigma_zy);
-    atomicAdd(sigma+8, sigma_zz);
+    fp_atomic_add(sigma+0, sigma_xx);
+    fp_atomic_add(sigma+1, sigma_xy);
+    fp_atomic_add(sigma+2, sigma_xz);
+    fp_atomic_add(sigma+3, sigma_yx);
+    fp_atomic_add(sigma+4, sigma_yy);
+    fp_atomic_add(sigma+5, sigma_yz);
+    fp_atomic_add(sigma+6, sigma_zx);
+    fp_atomic_add(sigma+7, sigma_zy);
+    fp_atomic_add(sigma+8, sigma_zz);
 }
 
 extern "C" {

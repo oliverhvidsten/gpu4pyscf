@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "../fixed_point.cuh"
 #include "gint.h"
 
 template <int NROOTS>
@@ -149,12 +150,12 @@ static void GINTfill_int3c1e_ipip1_charge_contracted_kernel_general(double* outp
             const double d2eri_dAydAy = output_cache[i + j * n_density_elements_i + 3 * n_density_elements_ij];
             const double d2eri_dAydAz = output_cache[i + j * n_density_elements_i + 4 * n_density_elements_ij];
             const double d2eri_dAzdAz = output_cache[i + j * n_density_elements_i + 5 * n_density_elements_ij];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), d2eri_dAxdAx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), d2eri_dAxdAy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), d2eri_dAxdAz);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 4 * stride_ij), d2eri_dAydAy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 5 * stride_ij), d2eri_dAydAz);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 8 * stride_ij), d2eri_dAzdAz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), d2eri_dAxdAx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), d2eri_dAxdAy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), d2eri_dAxdAz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 4 * stride_ij), d2eri_dAydAy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 5 * stride_ij), d2eri_dAydAz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 8 * stride_ij), d2eri_dAzdAz);
         }
     }
 }
@@ -311,15 +312,15 @@ static void GINTfill_int3c1e_ipvip1_charge_contracted_kernel_general(double* out
             const double d2eri_dAzdBx = output_cache[i + j * n_density_elements_i + 6 * n_density_elements_ij];
             const double d2eri_dAzdBy = output_cache[i + j * n_density_elements_i + 7 * n_density_elements_ij];
             const double d2eri_dAzdBz = output_cache[i + j * n_density_elements_i + 8 * n_density_elements_ij];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), d2eri_dAxdBx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), d2eri_dAxdBy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), d2eri_dAxdBz);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 3 * stride_ij), d2eri_dAydBx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 4 * stride_ij), d2eri_dAydBy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 5 * stride_ij), d2eri_dAydBz);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 6 * stride_ij), d2eri_dAzdBx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 7 * stride_ij), d2eri_dAzdBy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 8 * stride_ij), d2eri_dAzdBz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), d2eri_dAxdBx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), d2eri_dAxdBy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), d2eri_dAxdBz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 3 * stride_ij), d2eri_dAydBx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 4 * stride_ij), d2eri_dAydBy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 5 * stride_ij), d2eri_dAydBz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 6 * stride_ij), d2eri_dAzdBx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 7 * stride_ij), d2eri_dAzdBy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 8 * stride_ij), d2eri_dAzdBz);
         }
     }
 }
@@ -490,15 +491,15 @@ static void GINTfill_int3c1e_ip1ip2_charge_contracted_kernel_general(double* out
             const double d2eri_dAzdCx = output_cache[i + j * n_density_elements_i + 6 * n_density_elements_ij];
             const double d2eri_dAzdCy = output_cache[i + j * n_density_elements_i + 7 * n_density_elements_ij];
             const double d2eri_dAzdCz = output_cache[i + j * n_density_elements_i + 8 * n_density_elements_ij];
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), d2eri_dAxdCx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), d2eri_dAxdCy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), d2eri_dAxdCz);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 3 * stride_ij), d2eri_dAydCx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 4 * stride_ij), d2eri_dAydCy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 5 * stride_ij), d2eri_dAydCz);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 6 * stride_ij), d2eri_dAzdCx);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 7 * stride_ij), d2eri_dAzdCy);
-            atomicAdd(output + ((i + i0) + (j + j0) * stride_j + 8 * stride_ij), d2eri_dAzdCz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 0 * stride_ij), d2eri_dAxdCx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 1 * stride_ij), d2eri_dAxdCy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 2 * stride_ij), d2eri_dAxdCz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 3 * stride_ij), d2eri_dAydCx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 4 * stride_ij), d2eri_dAydCy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 5 * stride_ij), d2eri_dAydCz);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 6 * stride_ij), d2eri_dAzdCx);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 7 * stride_ij), d2eri_dAzdCy);
+            fp_atomic_add(output + ((i + i0) + (j + j0) * stride_j + 8 * stride_ij), d2eri_dAzdCz);
         }
     }
 }
@@ -626,10 +627,10 @@ static void GINTfill_int3c1e_ipip2_density_contracted_kernel_general(double* out
         d2eri_dCydCz_pair_sum += d2eri_dCydCz;
         d2eri_dCzdCz_pair_sum += d2eri_dCzdCz;
     }
-    atomicAdd(output + task_grid + ngrids * 0, d2eri_dCxdCx_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 1, d2eri_dCxdCy_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 2, d2eri_dCxdCz_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 4, d2eri_dCydCy_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 5, d2eri_dCydCz_pair_sum);
-    atomicAdd(output + task_grid + ngrids * 8, d2eri_dCzdCz_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 0, d2eri_dCxdCx_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 1, d2eri_dCxdCy_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 2, d2eri_dCxdCz_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 4, d2eri_dCydCy_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 5, d2eri_dCydCz_pair_sum);
+    fp_atomic_add(output + task_grid + ngrids * 8, d2eri_dCzdCz_pair_sum);
 }
