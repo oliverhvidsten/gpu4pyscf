@@ -37,6 +37,16 @@ endif()
 message("Build type ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
+
+# Bind each library's references to its own definitions. The host-side shadows of the __constant__
+# variables are exported with default visibility, and libgint and libgvhf define the same names
+# (c_bpcache, c_idx, c_l_locs) while libgvhf links libgint. When libgint is loaded as libgvhf's
+# dependency, libgint's references bind to libgvhf's copies and, with a shared CUDA runtime, both
+# libraries register their device symbols under one host address: cudaMemcpyToSymbol in libgint then
+# updates libgvhf's constant memory and the libgint kernels read a zeroed BasisProdCache.
+if(NOT APPLE)
+  add_link_options(-Wl,-Bsymbolic)
+endif()
 if (CMAKE_COMPILER_IS_GNUCC) # Does it skip the link flag on old OsX?
   # TODO: If updating to minimum requirement cmake>=3.7, use
   # CMAKE_SHARED_LINKER_FLAGS_INIT to combine LDFLAGS options.
