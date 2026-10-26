@@ -23,6 +23,9 @@ accumulators back to double. The shift is read from the library.
 Set GPU4PYSCF_DETERMINISTIC_BLOCKING=1 to make get_avail_mem() return a fixed
 fraction of the device memory, so that block/batch sizes derived from it do not
 depend on the momentary memory-pool state.
+
+Either flag makes add_at() replace cupy.add.at (float atomics, order-dependent
+rounding) by a one-hot matrix product, which cuBLAS evaluates in a fixed order.
 '''
 
 import os
@@ -89,3 +92,82 @@ def from_fixed(buf):
     assert buf.dtype == cp.float64 and buf.flags.c_contiguous
     buf[...] = buf.view(cp.int64).astype(cp.float64) * (2.0 ** -_shift)
     return buf
+
+
+def deterministic():
+    '''True when either determinism flag is set.'''
+    return ENABLED or DETERMINISTIC_BLOCKING
+
+
+def _onehot(labels, n_out, dtype):
+    import cupy as cp
+    labels = cp.asarray(labels).ravel()
+    onehot = cp.zeros((n_out, labels.size), dtype=dtype)
+    onehot[labels, cp.arange(labels.size)] = 1
+    return onehot
+
+
+def add_at(out, indices, values):
+    '''out[indices] += values with duplicate indices accumulated, like
+    cupy.add.at(out, indices, values).
+
+    cupy.add.at scatters with floating-point atomics, so the summation order and
+    hence the rounding differ from run to run. In deterministic mode the sum over
+    each indexed axis is done as a matrix product with a one-hot (n_out x n)
+    matrix instead, which is bit-reproducible and agrees with add.at to rounding.
+    Otherwise this simply calls cupy.add.at.
+
+    Supported indices (what the Hessian code uses): a 1-D integer array, or a
+    tuple of slice(None) and integer arrays on consecutive axes, where the k
+    arrays broadcast against each other as an outer product, e.g.
+    (labels[:, None], labels[None, :], slice(None), slice(None)) or
+    (labels[:, None], labels).
+    `values` must have (or broadcast to) the shape of out[indices].
+    '''
+    import cupy as cp
+    if not deterministic():
+        cp.add.at(out, indices, values)
+        return out
+
+    if not isinstance(indices, tuple):
+        indices = (indices,)
+    axes, labels = [], []
+    for ax, idx in enumerate(indices):
+        if isinstance(idx, slice):
+            if idx != slice(None):
+                raise NotImplementedError('add_at: only slice(None) is supported')
+            continue
+        axes.append(ax)
+        labels.append(cp.asarray(idx))
+    k = len(axes)
+    if k == 0:
+        raise ValueError('add_at: no index array given')
+    if axes != list(range(axes[0], axes[0] + k)):
+        raise NotImplementedError('add_at: index arrays must be on consecutive axes')
+    for j, lab in enumerate(labels):
+        if lab.ndim > k:
+            raise NotImplementedError('add_at: index array has more dimensions than '
+                                      'there are index arrays')
+        # numpy broadcasting aligns shapes on the right: (n,) next to (n, 1) means (1, n)
+        lab = lab.reshape((1,) * (k - lab.ndim) + lab.shape)
+        wide = [d for d, n in enumerate(lab.shape) if n != 1]
+        if len(wide) > 1 or (wide and wide[0] != j):
+            raise NotImplementedError('add_at: index arrays must form an outer product')
+        labels[j] = lab.ravel()
+
+    values = cp.asarray(values)
+    expected = list(out.shape)
+    expected[axes[0]:axes[0] + k] = [lab.size for lab in labels]
+    if list(values.shape) != expected:
+        values = cp.broadcast_to(values, expected)
+
+    res = values
+    for ax, lab in zip(axes, labels):
+        onehot = _onehot(lab, out.shape[ax], out.dtype)
+        if res.ndim == 1:
+            res = onehot @ res
+        else:
+            # contract the indexed axis: (n_out, n) @ (..., n, L) -> (..., n_out, L)
+            res = cp.moveaxis(cp.matmul(onehot, cp.moveaxis(res, ax, -2)), -2, ax)
+    out += res
+    return out

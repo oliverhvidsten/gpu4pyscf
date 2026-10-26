@@ -16,7 +16,7 @@
 Non-relativistic RHF analytical Hessian
 '''
 
-from gpu4pyscf.lib.fixed_point import from_fixed
+from gpu4pyscf.lib.fixed_point import from_fixed, add_at
 import math
 import ctypes
 import numpy
@@ -175,7 +175,7 @@ def _hcore_energy(hessobj, dm0, dme0):
     de = _aggregate_to_atoms(h1ab-s1ab, natm, atm_labels, axis=(0,1))
 
     de_diag = cp.zeros((natm, 3, 3))
-    cp.add.at(de_diag, atm_labels, h1aa-s1aa)
+    add_at(de_diag, atm_labels, h1aa-s1aa)
     de[np.diag_indices(natm)] += de_diag
     de_hcore += de + de.transpose(1,0,3,2)
     return de_hcore
@@ -195,7 +195,7 @@ def _aggregate_to_atoms(a, natm, atom_labels, axis):
     else:
         raise NotImplementedError
     out = cp.zeros(shape)
-    cp.add.at(out, indices, a)
+    add_at(out, indices, a)
     return out
 
 def _hess_nuc_without_ecp(mol, dm0):
