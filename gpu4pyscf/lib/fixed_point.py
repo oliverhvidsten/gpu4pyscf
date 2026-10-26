@@ -26,9 +26,24 @@ depend on the momentary memory-pool state.
 
 Either flag makes add_at() replace cupy.add.at (float atomics, order-dependent
 rounding) by a one-hot matrix product, which cuBLAS evaluates in a fixed order.
+
+RANGE LIMITATION. With shift 48 a fixed-point accumulator holds +-2^15 = 32768:
+a single kernel term with |x| >= 32768 saturates in __double2ll_rn and a running
+sum beyond 2^63 wraps around, both silently -- the result is simply wrong, with
+no error and no NaN. Kernel terms that grow with the nuclear charge Z and the
+core density rho(0) ~ Z^3 exceed this for third-row atoms: the nuclear-attraction
+Hessian (ejk_int3c2e_ip2 with the nuclei as point charges) was off by 3.3e4
+Ha/Bohr^2 on the sulfur self-block (O and F were in range). hessian.rhf divides
+the charges by charge_scale_for_range() before that kernel and multiplies the
+result back; this is calibrated on S/P and extrapolated with a Z^4 law, so it is
+NOT a guarantee for heavier elements, and the other converted Hessian kernels
+(direct ejk_ip2, DF J/K Hessian, int2c2e/int3c2e derivatives) have not been
+checked with elements beyond S. When in doubt compare one Hessian against a
+GPU4PYSCF_FIXED_POINT=0 run; there is no runtime detection.
 '''
 
 import os
+import math
 
 ENABLED = os.environ.get('GPU4PYSCF_FIXED_POINT', '0').strip().lower() not in (
     '0', '', 'false', 'off', 'no')
@@ -171,3 +186,15 @@ def add_at(out, indices, values):
             res = cp.moveaxis(cp.matmul(onehot, cp.moveaxis(res, ax, -2)), -2, ax)
     out += res
     return out
+
+
+def charge_scale_for_range(max_charge):
+    '''Power-of-two factor by which to divide point charges fed to a fixed-point
+    kernel whose terms grow like Z * rho(0) (~ Z^4), so that the terms stay inside
+    the +-2^(63-shift) accumulator range. 1 for Z <= 8 (O stays in range at the
+    default shift), 16 for P/S, 32 for Cl, ~2^9 for Br, ~2^11 for I. Exact in
+    binary, so dividing the input and multiplying the result back costs only
+    resolution: 2^-shift * scale per term. Returns 1.0 when fixed point is off.'''
+    if not ENABLED or max_charge <= 8:
+        return 1.0
+    return 2.0 ** math.ceil(4 * math.log2(max_charge / 8.0))

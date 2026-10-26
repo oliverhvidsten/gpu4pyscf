@@ -16,7 +16,7 @@
 Non-relativistic RHF analytical Hessian
 '''
 
-from gpu4pyscf.lib.fixed_point import from_fixed, add_at
+from gpu4pyscf.lib.fixed_point import from_fixed, add_at, charge_scale_for_range
 import math
 import ctypes
 import numpy
@@ -204,6 +204,11 @@ def _hess_nuc_without_ecp(mol, dm0):
     natm = mol.natm
     coords = mol.atom_coords()
     charges = cp.asarray(-mol.atom_charges(), dtype=np.float64)
+    # Fixed-point range guard: the kernel terms scale with Z*rho(0) and exceed the
+    # +-2^15 accumulator range for S/P (see lib/fixed_point.py). The kernel is
+    # linear in the charges, so scale them down here and the result back up below.
+    charge_scale = charge_scale_for_range(float(mol.atom_charges().max()))
+    charges /= charge_scale
     fakemol = gto.fakemol_for_charges(coords)
 
     sorted_mol = SortedMole.from_mol(mol, decontract=True)
@@ -247,6 +252,7 @@ def _hess_nuc_without_ecp(mol, dm0):
     if err != 0:
         raise RuntimeError('ejk_int3c2e_ip2 failed')
     from_fixed(de)
+    de *= charge_scale
     de = de + de.transpose(1,0,3,2)
     de *= 2
     return de
