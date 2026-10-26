@@ -37,7 +37,15 @@ Deterministic and stock results agree to rounding (1e-13 Ha, 1e-9 Ha/Bohr²).
 are linked with `-Bsymbolic`, which also fixes an intermittent illegal-address
 crash in `int1e_grids` when the CUDA runtime is shared between the libraries.
 A prebuilt wheel cannot come from PyPI: the stock wheels do not contain the
-`_fp` libraries.
+`_fp` libraries. Wheel build used for the group (Perlmutter, A100, CUDA 12.9;
+remove a stale `build/` directory first, its CMake cache keeps old options):
+
+```bash
+module load cudatoolkit/12.9
+export GPU4PYSCF_BUILD_CUDA_WHEEL=1 CUDACXX=$(which nvcc) CC=gcc CXX=g++
+export CMAKE_CONFIGURE_ARGS="-DCUDA_ARCHITECTURES=80-real -DCMAKE_CUDA_RUNTIME_LIBRARY=Static -DBUILD_FIXED_POINT=ON"
+pip wheel --no-deps --no-build-isolation -w dist .
+```
 
 ## Limitations
 
