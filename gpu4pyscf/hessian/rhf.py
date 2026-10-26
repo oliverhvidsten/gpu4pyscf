@@ -204,9 +204,7 @@ def _hess_nuc_without_ecp(mol, dm0):
     natm = mol.natm
     coords = mol.atom_coords()
     charges = cp.asarray(-mol.atom_charges(), dtype=np.float64)
-    # Fixed-point range guard: the kernel terms scale with Z*rho(0) and exceed the
-    # +-2^15 accumulator range for S/P (see lib/fixed_point.py). The kernel is
-    # linear in the charges, so scale them down here and the result back up below.
+    # fixed-point range guard: scale the charges down and the result back up (lib/fixed_point.py)
     charge_scale = charge_scale_for_range(float(mol.atom_charges().max()))
     charges /= charge_scale
     fakemol = gto.fakemol_for_charges(coords)

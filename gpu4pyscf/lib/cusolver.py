@@ -26,13 +26,8 @@ from cupy.cuda import device
 
 
 def _pip_cusolver_candidates():
-    '''Shared-library files of the nvidia-cusolver pip wheel, found on sys.path.
-
-    The wheel ships only the versioned soname (e.g. libcusolver.so.11) and no
-    unversioned libcusolver.so, which is why numpy.ctypeslib.load_library cannot
-    find it. Its RUNPATH points at the sibling cublas/cusparse/nvjitlink wheels, so
-    it loads without LD_LIBRARY_PATH.
-    '''
+    '''libcusolver files of the nvidia-cusolver pip wheel on sys.path. The wheel
+    ships only the versioned soname (libcusolver.so.11), no libcusolver.so.'''
     candidates = []
     for directory in sys.path:
         libdir = os.path.join(directory, 'nvidia', 'cusolver', 'lib')
@@ -51,8 +46,7 @@ def _load_libcusolver():
             return ctypes.CDLL(path)
         except OSError as e:
             errors.append(str(e))
-    # cupy_backends.cuda.libs.cusolver (imported above) has normally loaded cuSOLVER
-    # already; dlopen by soname then returns that copy.
+    # cupy (imported above) has normally loaded cuSOLVER already; dlopen by soname finds it
     for soname in ('libcusolver.so.11', 'libcusolver.so.12', 'libcusolver.so'):
         try:
             return ctypes.CDLL(soname)

@@ -13,44 +13,40 @@
 # limitations under the License.
 
 '''
-Fixed-point (int64) accumulation for bit-reproducible GPU kernels.
+Bit-reproducible GPU reductions. GPU4PYSCF_DETERMINISTIC=1 enables both parts;
+each can also be set on its own:
 
-Set GPU4PYSCF_FIXED_POINT=1 to load the lib*_fp.so variants built with
--DFIXED_POINT_ACCUM (see lib/fixed_point.cuh); the call sites of the accumulating
-kernels then call from_fixed(buf) once after their kernel loop to convert the int64
-accumulators back to double. The shift is read from the library.
+  GPU4PYSCF_FIXED_POINT=1             load the lib*_fp.so variants, whose kernels
+                                      accumulate in int64 fixed point (fixed_point.cuh);
+                                      their call sites convert back with from_fixed()
+  GPU4PYSCF_DETERMINISTIC_BLOCKING=1  block sizes independent of the memory-pool state,
+                                      first-occurrence writes when unpacking cderi, and
+                                      add_at() instead of cupy.add.at
 
-Set GPU4PYSCF_DETERMINISTIC_BLOCKING=1 to make get_avail_mem() return a fixed
-fraction of the device memory, so that block/batch sizes derived from it do not
-depend on the momentary memory-pool state.
-
-Either flag makes add_at() replace cupy.add.at (float atomics, order-dependent
-rounding) by a one-hot matrix product, which cuBLAS evaluates in a fixed order.
-
-RANGE LIMITATION. With shift 48 a fixed-point accumulator holds +-2^15 = 32768:
-a single kernel term with |x| >= 32768 saturates in __double2ll_rn and a running
-sum beyond 2^63 wraps around, both silently -- the result is simply wrong, with
-no error and no NaN. Kernel terms that grow with the nuclear charge Z and the
-core density rho(0) ~ Z^3 exceed this for third-row atoms: the nuclear-attraction
-Hessian (ejk_int3c2e_ip2 with the nuclei as point charges) was off by 3.3e4
-Ha/Bohr^2 on the sulfur self-block (O and F were in range). hessian.rhf divides
-the charges by charge_scale_for_range() before that kernel and multiplies the
-result back; this is calibrated on S/P and extrapolated with a Z^4 law, so it is
-NOT a guarantee for heavier elements, and the other converted Hessian kernels
-(direct ejk_ip2, DF J/K Hessian, int2c2e/int3c2e derivatives) have not been
-checked with elements beyond S. When in doubt compare one Hessian against a
-GPU4PYSCF_FIXED_POINT=0 run; there is no runtime detection.
+Range: with shift 48 an accumulator holds +-2^15; larger terms saturate or wrap
+silently. charge_scale_for_range() guards the one known case. See DETERMINISM.md.
 '''
 
-import os
 import math
+import os
 
-ENABLED = os.environ.get('GPU4PYSCF_FIXED_POINT', '0').strip().lower() not in (
-    '0', '', 'false', 'off', 'no')
 
-DETERMINISTIC_BLOCKING = os.environ.get('GPU4PYSCF_DETERMINISTIC_BLOCKING', '0').strip().lower() not in (
-    '0', '', 'false', 'off', 'no')
+def _flag(name, default=False):
+    val = os.environ.get(name)
+    if val is None:
+        return default
+    return val.strip().lower() not in ('0', '', 'false', 'off', 'no')
+
+
+_all = _flag('GPU4PYSCF_DETERMINISTIC')
+ENABLED = _flag('GPU4PYSCF_FIXED_POINT', _all)
+DETERMINISTIC_BLOCKING = _flag('GPU4PYSCF_DETERMINISTIC_BLOCKING', _all)
 DETERMINISTIC_MEM_FRACTION = float(os.environ.get('GPU4PYSCF_DETERMINISTIC_MEM_FRACTION', '0.5'))
+
+
+def deterministic():
+    '''True when either part is on.'''
+    return ENABLED or DETERMINISTIC_BLOCKING
 
 
 def deterministic_avail_mem():
@@ -109,11 +105,6 @@ def from_fixed(buf):
     return buf
 
 
-def deterministic():
-    '''True when either determinism flag is set.'''
-    return ENABLED or DETERMINISTIC_BLOCKING
-
-
 def _onehot(labels, n_out, dtype):
     import cupy as cp
     labels = cp.asarray(labels).ravel()
@@ -123,21 +114,13 @@ def _onehot(labels, n_out, dtype):
 
 
 def add_at(out, indices, values):
-    '''out[indices] += values with duplicate indices accumulated, like
-    cupy.add.at(out, indices, values).
+    '''cupy.add.at(out, indices, values) without float atomics: in deterministic
+    mode each indexed axis is summed by a one-hot matrix product (fixed order, so
+    bit-reproducible; agrees with add.at to rounding), otherwise plain cupy.add.at.
 
-    cupy.add.at scatters with floating-point atomics, so the summation order and
-    hence the rounding differ from run to run. In deterministic mode the sum over
-    each indexed axis is done as a matrix product with a one-hot (n_out x n)
-    matrix instead, which is bit-reproducible and agrees with add.at to rounding.
-    Otherwise this simply calls cupy.add.at.
-
-    Supported indices (what the Hessian code uses): a 1-D integer array, or a
-    tuple of slice(None) and integer arrays on consecutive axes, where the k
-    arrays broadcast against each other as an outer product, e.g.
-    (labels[:, None], labels[None, :], slice(None), slice(None)) or
-    (labels[:, None], labels).
-    `values` must have (or broadcast to) the shape of out[indices].
+    indices: a 1-D integer array, or a tuple of slice(None) and integer arrays on
+    consecutive axes that broadcast as an outer product, e.g. (lab[:, None], lab)
+    or (lab[:, None], lab[None, :], slice(None), slice(None)).
     '''
     import cupy as cp
     if not deterministic():
@@ -163,8 +146,7 @@ def add_at(out, indices, values):
         if lab.ndim > k:
             raise NotImplementedError('add_at: index array has more dimensions than '
                                       'there are index arrays')
-        # numpy broadcasting aligns shapes on the right: (n,) next to (n, 1) means (1, n)
-        lab = lab.reshape((1,) * (k - lab.ndim) + lab.shape)
+        lab = lab.reshape((1,) * (k - lab.ndim) + lab.shape)  # numpy right-aligns shapes
         wide = [d for d, n in enumerate(lab.shape) if n != 1]
         if len(wide) > 1 or (wide and wide[0] != j):
             raise NotImplementedError('add_at: index arrays must form an outer product')
@@ -182,19 +164,17 @@ def add_at(out, indices, values):
         if res.ndim == 1:
             res = onehot @ res
         else:
-            # contract the indexed axis: (n_out, n) @ (..., n, L) -> (..., n_out, L)
+            # (n_out, n) @ (..., n, L) -> (..., n_out, L)
             res = cp.moveaxis(cp.matmul(onehot, cp.moveaxis(res, ax, -2)), -2, ax)
     out += res
     return out
 
 
 def charge_scale_for_range(max_charge):
-    '''Power-of-two factor by which to divide point charges fed to a fixed-point
-    kernel whose terms grow like Z * rho(0) (~ Z^4), so that the terms stay inside
-    the +-2^(63-shift) accumulator range. 1 for Z <= 8 (O stays in range at the
-    default shift), 16 for P/S, 32 for Cl, ~2^9 for Br, ~2^11 for I. Exact in
-    binary, so dividing the input and multiplying the result back costs only
-    resolution: 2^-shift * scale per term. Returns 1.0 when fixed point is off.'''
+    '''Power of two by which to divide point charges fed to a fixed-point kernel
+    whose terms grow like Z*rho(0) ~ Z^4, so they stay inside the accumulator
+    range: 1 for Z <= 8, 16 for P/S, 32 for Cl. Calibrated on S, extrapolated
+    beyond. 1.0 when fixed point is off.'''
     if not ENABLED or max_charge <= 8:
         return 1.0
     return 2.0 ** math.ceil(4 * math.log2(max_charge / 8.0))
