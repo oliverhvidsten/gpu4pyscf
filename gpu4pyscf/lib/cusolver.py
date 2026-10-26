@@ -13,21 +13,49 @@
 # limitations under the License.
 
 
+import os
+import sys
+import glob
 import numpy as np
 import cupy
 import ctypes
+from ctypes.util import find_library
 from cupy_backends.cuda.libs import cusolver
 from cupy_backends.cuda.libs import cublas
 from cupy.cuda import device
 
-from gpu4pyscf.lib.utils import load_library
 
-from ctypes.util import find_library
-libcusolver = find_library('cusolver')
-if libcusolver is not None:
-    libcusolver = ctypes.CDLL(libcusolver)
-else:
-    libcusolver = load_library('libcusolver', path='nvidia/cusolver/lib')
+def _pip_cusolver_candidates():
+    '''libcusolver files of the nvidia-cusolver pip wheel on sys.path. The wheel
+    ships only the versioned soname (libcusolver.so.11), no libcusolver.so.'''
+    candidates = []
+    for directory in sys.path:
+        libdir = os.path.join(directory, 'nvidia', 'cusolver', 'lib')
+        if os.path.isdir(libdir):
+            for pattern in ('libcusolver.so', 'libcusolver.so.[0-9]*'):
+                candidates.extend(sorted(glob.glob(os.path.join(libdir, pattern))))
+    return candidates
+
+def _load_libcusolver():
+    path = find_library('cusolver')  # CUDA toolkit on the loader path
+    if path is not None:
+        return ctypes.CDLL(path)
+    errors = []
+    for path in _pip_cusolver_candidates():
+        try:
+            return ctypes.CDLL(path)
+        except OSError as e:
+            errors.append(str(e))
+    # cupy (imported above) has normally loaded cuSOLVER already; dlopen by soname finds it
+    for soname in ('libcusolver.so.11', 'libcusolver.so.12', 'libcusolver.so'):
+        try:
+            return ctypes.CDLL(soname)
+        except OSError as e:
+            errors.append(str(e))
+    raise OSError('Unable to load libcusolver: no CUDA toolkit on the loader path and '
+                  'no nvidia-cusolver wheel on sys.path. ' + '; '.join(errors))
+
+libcusolver = _load_libcusolver()
 
 # workspace size (lwork) provided by the cusolver*_bufferSize is an 32-bit
 # integer. For arrays above this dimension, the workspace size would overflow.

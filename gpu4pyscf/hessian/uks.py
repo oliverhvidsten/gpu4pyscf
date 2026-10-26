@@ -31,6 +31,7 @@ from gpu4pyscf.grad import rks as rks_grad
 from gpu4pyscf.dft import numint
 from gpu4pyscf.lib.cupy_helper import (contract, add_sparse, get_avail_mem, take_last2d)
 from gpu4pyscf.lib import logger
+from gpu4pyscf.lib.fixed_point import add_at
 from gpu4pyscf.__config__ import min_grid_blksize
 
 def partial_hess_elec(hessobj, mo_energy=None, mo_coeff=None, mo_occ=None,
@@ -732,7 +733,7 @@ def get_drho_dA_sparse(dm0_masked, xctype, natm, masked_i_atom_of_aos = None, i_
 
     rho_response = contract("dig,uig->duig", dmu_dr, dm_dot_mu_and_nu)
     if with_orbital_response:
-        cupy.add.at(drho_dA_orbital_response[:, :, :, 0, :], masked_i_atom_of_aos, rho_response.transpose(2,0,1,3))
+        add_at(drho_dA_orbital_response[:, :, :, 0, :], masked_i_atom_of_aos, rho_response.transpose(2,0,1,3))
     if with_grid_response:
         rho_response = cupy.einsum('duig->dug', rho_response)
         drho_dA_grid_response[i_atom_of_grids, :, :, 0, :] = rho_response
@@ -742,7 +743,7 @@ def get_drho_dA_sparse(dm0_masked, xctype, natm, masked_i_atom_of_aos = None, i_
         nablarho_response = contract("dDig,uig->duDig", d2mu_dr2, dm_dot_mu_and_nu)
         nablarho_response += contract('dig,uDig->duDig', dmu_dr, dm_dot_dmu_and_dnu)
         if with_orbital_response:
-            cupy.add.at(drho_dA_orbital_response[:, :, :, 1:4, :], masked_i_atom_of_aos, nablarho_response.transpose(3,0,1,2,4))
+            add_at(drho_dA_orbital_response[:, :, :, 1:4, :], masked_i_atom_of_aos, nablarho_response.transpose(3,0,1,2,4))
         if with_grid_response:
             nablarho_response = cupy.einsum('duDig->duDg', nablarho_response)
             drho_dA_grid_response[i_atom_of_grids, :, :, 1:4, :] = nablarho_response
@@ -751,7 +752,7 @@ def get_drho_dA_sparse(dm0_masked, xctype, natm, masked_i_atom_of_aos = None, i_
     if with_tau:
         tau_response = 0.5 * contract('dDig,uDig->duig', d2mu_dr2, dm_dot_dmu_and_dnu)
         if with_orbital_response:
-            cupy.add.at(drho_dA_orbital_response[:, :, :, 4, :], masked_i_atom_of_aos, tau_response.transpose(2,0,1,3))
+            add_at(drho_dA_orbital_response[:, :, :, 4, :], masked_i_atom_of_aos, tau_response.transpose(2,0,1,3))
         if with_grid_response:
             tau_response = cupy.einsum('duig->dug', tau_response)
             drho_dA_grid_response[i_atom_of_grids, :, :, 4, :] = tau_response
@@ -890,7 +891,7 @@ def contract_d2rho_dAdB_sparse(dm0_masked, xctype, natm, masked_i_atom_of_aos = 
     if with_orbital_response:
         d2e_ii_AA = cupy.zeros((natm, 3, 3))
         d2e_ii_AA_ao_uncontracted = d2e_ii_AA_ao_uncontracted.transpose(2,0,1)
-        cupy.add.at(d2e_ii_AA, masked_i_atom_of_aos, d2e_ii_AA_ao_uncontracted)
+        add_at(d2e_ii_AA, masked_i_atom_of_aos, d2e_ii_AA_ao_uncontracted)
         del d2e_ii_AA_ao_uncontracted
         for i_atom in range(natm):
             d2e[i_atom, i_atom, :, :] += d2e_ii_AA[i_atom, :, :]
@@ -898,14 +899,14 @@ def contract_d2rho_dAdB_sparse(dm0_masked, xctype, natm, masked_i_atom_of_aos = 
 
         d2V = contract("udDij,uij->dDij", d2V, dm_dmT)
         d2V = d2V.transpose(2,3,0,1)
-        cupy.add.at(d2e, (masked_i_atom_of_aos[:, None], masked_i_atom_of_aos[None, :], slice(None), slice(None)), d2V)
+        add_at(d2e, (masked_i_atom_of_aos[:, None], masked_i_atom_of_aos[None, :], slice(None), slice(None)), d2V)
 
     if with_grid_response:
         d2e[i_atom_of_grids, i_atom_of_grids, :, :] += cupy.einsum("dDi->dD", d2e_ji_AB_ao_uncontracted)
 
         d2e_ji_AB = cupy.zeros((natm, 3, 3))
         d2e_ji_AB_ao_uncontracted = d2e_ji_AB_ao_uncontracted.transpose(2,0,1)
-        cupy.add.at(d2e_ji_AB, masked_i_atom_of_aos, d2e_ji_AB_ao_uncontracted)
+        add_at(d2e_ji_AB, masked_i_atom_of_aos, d2e_ji_AB_ao_uncontracted)
         del d2e_ji_AB_ao_uncontracted
         # Why is there a transpose for this equation? Because we're using j index at where it supposes to be i.
         d2e[i_atom_of_grids, :, :, :] -= d2e_ji_AB.transpose(0,2,1)
